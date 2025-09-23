@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成AIパスポート初級演習問題</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #1e3a5f;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 40px;
+        }
+        .question-block {
+            background: #fafcff;
+            border: 1px solid #d4e2f4;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            transition: box-shadow 0.3s ease;
+        }
+        .question-block:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .question-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #3b5998;
+        }
+        .options label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .options label:hover {
+            color: #0056b3;
+        }
+        .answer-section {
+            display: none;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #e2e8f0;
+        }
+        .answer-header {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        .answer-correct, .answer-incorrect {
+            font-weight: bold;
+        }
+        .answer-correct {
+            color: #28a745;
+        }
+        .answer-incorrect {
+            color: #dc3545;
+        }
+        .explanation {
+            margin-top: 10px;
+            color: #555;
+        }
+        .grade-button, .export-button, .import-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+        }
+        .grade-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .grade-button:hover {
+            background-color: #0056b3;
+        }
+        .export-button {
+            background-color: #28a745;
+            color: white;
+        }
+        .export-button:hover {
+            background-color: #218838;
+        }
+        .import-button {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .import-button:hover {
+            background-color: #e0a800;
+        }
+        .status-message {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        #import-input {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .clear-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .clear-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>生成AIパスポート初級演習問題</h1>
+    <div id="controls">
+        <button class="export-button" onclick="exportAnswers()">結果をエクスポート</button>
+        <button class="import-button" onclick="showImport()">結果をインポート</button>
+        <button class="clear-button" onclick="clearAnswers()">回答をクリア</button>
+        <div id="import-area" style="display:none;">
+            <input type="text" id="import-input" placeholder="ここにエクスポートしたコードを貼り付けてください">
+            <button class="import-button" onclick="importAnswers()">インポート実行</button>
+            <div id="status-message" class="status-message"></div>
+        </div>
+    </div>
+    <div id="quiz-container"></div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            "section": "初級演習問題１",
+            "questions": [
+                {
+                    "q": "「AI（人工知能）」の定義として最も適切なものはどれか。",
+                    "options": [
+                        "人間の感情を完全に再現する技術",
+                        "ロボットに搭載される全ての技術のこと",
+                        "コンピュータに知的な処理をさせる技術",
+                        "自動化された全ての機械の総称"
+                    ],
+                    "answer": 2,
+                    "explanation": "AIはコンピュータが知的処理を行う技術であり、感情やロボット全体ではない。"
+                },
+                {
+                    "q": "第三次AIブームの主な特徴はどれか。",
+                    "options": [
+                        "ルールベースと推論技術",
+                        "機械学習と深層学習",
+                        "自然言語処理による対話システム",
+                        "強いAIの実現"
+                    ],
+                    "answer": 1,
+                    "explanation": "第三次ブームでは機械学習と深層学習が発展し、ビッグデータの活用が進んだ。"
+                },
+                {
+                    "q": "「Transformer」が主に使われるのはどの用途か。",
+                    "options": [
+                        "自律走行車の制御",
+                        "音声信号のアナログ変換",
+                        "自然言語処理による文生成",
+                        "ハードウェア設計の自動化"
+                    ],
+                    "answer": 2,
+                    "explanation": "Transformerは自然言語の文脈理解に強く、ChatGPT等に使われている。"
+                },
+                {
+                    "q": "次のうち、教師あり学習に該当するものはどれか。",
+                    "options": [
+                        "クラスタリングによるパターン発見",
+                        "入力と正解ラベルを使って分類モデルを訓練",
+                        "強化学習による報酬最適化",
+                        "自然言語の自動翻訳"
+                    ],
+                    "answer": 1,
+                    "explanation": "分類は代表的な教師あり学習。正解ラベル付きのデータを使う。"
+                },
+                {
+                    "q": "ChatGPTの基盤となっているアーキテクチャはどれか。",
+                    "options": [
+                        "LSTM",
+                        "Transformer",
+                        "CNN",
+                        "GAN"
+                    ],
+                    "answer": 1,
+                    "explanation": "GPTはTransformerに基づく自然言語処理モデル。"
+                },
+                {
+                    "q": "AIの4つのレベルに関する説明として正しいものはどれか。",
+                    "options": [
+                        "強いAIはルールベースのAIを指す",
+                        "弱いAIはあらゆる課題に対応できる",
+                        "AGIは人間の知能と同等の能力を持つAI",
+                        "ASIは未実装の用語で使用されない"
+                    ],
+                    "answer": 2,
+                    "explanation": "AGIは人間と同程度の知能を持つ汎用型AI。ASIはそれを超える。"
+                },
+                {
+                    "q": "Deepfakeに関する説明として正しいものはどれか。",
+                    "options": [
+                        "映像圧縮の最新技術",
+                        "音楽の自動生成手法",
+                        "人を故意に陥れる目的で用いられるAI技術",
+                        "データを正規化する技術"
+                    ],
+                    "answer": 2,
+                    "explanation": "ディープフェイクは、悪用目的で用いられる合成画像・動画技術。"
+                },
+                {
+                    "q": "次のうち、プロンプトエンジニアリングの目的として正しいものはどれか。",
+                    "options": [
+                        "AIの学習アルゴリズムを設計する",
+                        "AIの出力形式を調整・制御する",
+                        "データセットのクリーニング",
+                        "モデルのパラメータ数を削減する"
+                    ],
+                    "answer": 1,
+                    "explanation": "プロンプト設計でAIの応答精度や出力形式を操作できる。"
+                },
+                {
+                    "q": "ChatGPT以前の大規模対話型AIの系譜で正しい順序はどれか。",
+                    "options": [
+                        "GPT-1 → GPT-2 → GPT-3",
+                        "GPT-2 → GPT-1 → GPT-3",
+                        "GPT-3 → GPT-2 → GPT-1",
+                        "GPT-1 → GPT-3 → GPT-2"
+                    ],
+                    "answer": 0,
+                    "explanation": "GPT-1 → GPT-2 → GPT-3の順に発展した。"
+                },
+                {
+                    "q": "AIによる画像認識で多く使われるモデルはどれか。",
+                    "options": [
+                        "RNN",
+                        "GAN",
+                        "CNN",
+                        "BERT"
+                    ],
+                    "answer": 2,
+                    "explanation": "CNNは畳み込み演算で画像特徴を抽出し、画像認識に強い。"
+                },
+                {
+                    "q": "機械学習で「分類」に該当するタスクはどれか。",
+                    "options": [
+                        "気温の予測",
+                        "スパムメールの判別",
+                        "連続値の推定",
+                        "画像のぼかし処理"
+                    ],
+                    "answer": 1,
+                    "explanation": "「スパムメールかどうか」などの分類は教師あり学習に属する。"
+                },
+                {
+                    "q": "「GAN」に関する説明として正しいものはどれか。",
+                    "options": [
+                        "自己教師あり学習に特化したモデル",
+                        "2つのネットワークが競い合う構造",
+                        "映像認識に最適化されたモデル",
+                        "推論だけを行う軽量モデル"
+                    ],
+                    "answer": 1,
+                    "explanation": "GANは生成器と識別器の2つが競い合って学習を進める。"
+                },
+                {
+                    "q": "AIモデルの「過学習（オーバーフィッティング）」とはどのような状態か。",
+                    "options": [
+                        "学習が全く進まない状態",
+                        "学習が早すぎて安定しない状態",
+                        "学習データにだけ適合しすぎる状態",
+                        "全ての入力に同じ出力を返す状態"
+                    ],
+                    "answer": 2,
+                    "explanation": "学習データに依存しすぎて、汎用性を失う現象を指す。"
+                },
+                {
+                    "q": "「VAE」は何の略語か。",
+                    "options": [
+                        "Very Accurate Estimator",
+                        "Visual Analysis Encoder",
+                        "Variational Autoencoder",
+                        "Verified AI Engine"
+                    ],
+                    "answer": 2,
+                    "explanation": "VAEは「Variational Autoencoder」の略で、潜在変数を用いる生成モデル。"
+                },
+                {
+                    "q": "個人情報保護法において「要配慮個人情報」とされるものはどれか。",
+                    "options": [
+                        "名前",
+                        "生年月日",
+                        "健康診断結果",
+                        "郵便番号"
+                    ],
+                    "answer": 2,
+                    "explanation": "健康診断結果などはセンシティブ情報に該当する。"
+                },
+                {
+                    "q": "「匿名加工情報」とはどのような情報か。",
+                    "options": [
+                        "匿名希望者の基本情報",
+                        "AIが生成した仮名のデータ",
+                        "個人を特定できないよう加工された情報",
+                        "偽名を用いて取得した情報"
+                    ],
+                    "answer": 2,
+                    "explanation": "匿名加工情報は、個人を識別できないように加工された情報。"
+                },
+                {
+                    "q": "「強化学習」で使われる要素はどれか。",
+                    "options": [
+                        "教師データと正解ラベル",
+                        "誤差逆伝播と最適化",
+                        "状態・行動・報酬",
+                        "クラスタと次元削減"
+                    ],
+                    "answer": 2,
+                    "explanation": "強化学習では「状態・行動・報酬」に基づく学習が行われる。"
+                },
+                {
+                    "q": "「プライバシー設定」が重要な理由として適切なのはどれか。",
+                    "options": [
+                        "アプリの高速化",
+                        "ネットワーク接続の強化",
+                        "個人情報の漏洩を防ぐため",
+                        "クラウドの自動更新のため"
+                    ],
+                    "answer": 2,
+                    "explanation": "プライバシー設定により個人情報の漏洩を防ぐことができる。"
+                },
+                {
+                    "q": "GPT-4の特徴の一つはどれか。",
+                    "options": [
+                        "入出力が日本語専用である",
+                        "画像・音声も扱えるマルチモーダル性",
+                        "生成スピードが従来より遅い",
+                        "データが2020年で更新停止"
+                    ],
+                    "answer": 1,
+                    "explanation": "GPT-4はテキストだけでなく画像や音声も扱えるマルチモーダルモデル。"
+                },
+                {
+                    "q": "「フェイク画像」が生成AIで問題視される主な理由はどれか。",
+                    "options": [
+                        "ファイルサイズが大きい",
+                        "拡張子が不明なことが多い",
+                        "社会的な誤解や混乱を引き起こす",
+                        "色が鮮やかすぎるため"
+                    ],
+                    "answer": 2,
+                    "explanation": "生成された偽画像は、誤情報の拡散や詐欺に悪用される恐れがある。"
+                },
+                {
+                    "q": "プロンプト設計における「Few-Shot」の特徴はどれか。",
+                    "options": [
+                        "出力フォーマットを指定する",
+                        "回答例を複数提示する",
+                        "一切の事前例示をしない",
+                        "モデルを強制終了させる"
+                    ],
+                    "answer": 1,
+                    "explanation": "Few-Shotでは複数の例を見せて、出力のパターンをAIに学習させる。"
+                },
+                {
+                    "q": "インターネットリテラシーの説明として最も適切なものはどれか。",
+                    "options": [
+                        "デバイス操作の正確さ",
+                        "情報の収集・活用に関するスキル",
+                        "英語サイトの翻訳力",
+                        "ネット依存を防ぐためのルール"
+                    ],
+                    "answer": 1,
+                    "explanation": "正しい情報の取捨選択や安全なネット利用のスキルを指す。"
+                },
+                {
+                    "q": "AIにおける「ドロップアウト」の目的はどれか。",
+                    "options": [
+                        "学習を完全に停止するため",
+                        "学習率を一定に保つため",
+                        "過学習を防ぐため",
+                        "モデルを軽量化するため"
+                    ],
+                    "answer": 2,
+                    "explanation": "ドロップアウトは、過学習を防ぐためにランダムに一部のノードを無効化する手法。"
+                },
+                {
+                    "q": "ChatGPTの応答に関する課題である「ハルシネーション」はどのような現象か。",
+                    "options": [
+                        "計算が正確すぎる",
+                        "実際には存在しない内容を出力する",
+                        "応答が短すぎる傾向",
+                        "語尾が常に同じになる"
+                    ],
+                    "answer": 1,
+                    "explanation": "ハルシネーションとはAIが事実でない回答をする現象。"
+                },
+                {
+                    "q": "AI社会原則における「アカウンタビリティ」の意味はどれか。",
+                    "options": [
+                        "費用対効果",
+                        "信頼性",
+                        "説明責任",
+                        "即応性"
+                    ],
+                    "answer": 2,
+                    "explanation": "アカウンタビリティは、説明責任を果たすという倫理原則。"
+                },
+                {
+                    "q": "「データ拡張（Augmentation）」の目的はどれか。",
+                    "options": [
+                        "モデルのパラメータ削減",
+                        "学習速度の制御",
+                        "学習データの多様性を高める",
+                        "結果の再現性を上げる"
+                    ],
+                    "answer": 2,
+                    "explanation": "データ拡張は学習データの多様性を向上させ、汎化性能を高める。"
+                },
+                {
+                    "q": "プロンプト操作において「Instruction」に該当するものはどれか。",
+                    "options": [
+                        "文脈情報",
+                        "出力の指示",
+                        "入力データ",
+                        "結果の評価方法"
+                    ],
+                    "answer": 1,
+                    "explanation": "InstructionはAIに「何をしてほしいか」を明示的に伝える部分。"
+                },
+                {
+                    "q": "「スタイルGAN」に関する説明として正しいものはどれか。",
+                    "options": [
+                        "動画生成用の手法",
+                        "音声合成に特化したモデル",
+                        "高解像度画像を生成するGANの一種",
+                        "音楽ジャンルを分類するモデル"
+                    ],
+                    "answer": 2,
+                    "explanation": "StyleGANは高解像度のリアルな画像生成が可能なGANモデル。"
+                },
+                {
+                    "q": "AIによって著作権が問題となるケースはどれか。",
+                    "options": [
+                        "公開された統計データの利用",
+                        "AIが学習した素材と酷似した出力物",
+                        "自作のイラストを使った生成物",
+                        "数字のみのリスト生成"
+                    ],
+                    "answer": 1,
+                    "explanation": "AIが学習した素材と似た出力が著作権侵害の懸念となる。"
+                },
+                {
+                    "q": "「Zero-Shotプロンプティング」の特徴はどれか。",
+                    "options": [
+                        "複数の例を提示して誘導する",
+                        "特定のタスクを段階的に指示する",
+                        "例示なしで直接指示する",
+                        "出力フォーマットのみを制限する"
+                    ],
+                    "answer": 2,
+                    "explanation": "Zero-Shotでは例示なしで直接的な指示のみでタスクを実行させる。"
+                }
+            ]
+        },
+        {
+            "section": "初級演習問題２",
+            "questions": [
+                {
+                    "q": "AIの「ルールベース」方式の特徴として正しいものはどれか。",
+                    "options": [
+                        "データから自動的にパターンを学ぶ",
+                        "複数のニューラルネットワークを使用する",
+                        "明示的な規則に従って処理する",
+                        "人間の脳の構造を模倣する"
+                    ],
+                    "answer": 2,
+                    "explanation": "ルールベースAIは人間が定義した規則に従って処理を行う。"
+                },
+                {
+                    "q": "次のうち、機械学習の「教師なし学習」に該当するものはどれか。",
+                    "options": [
+                        "商品の購入履歴からグループを作成する",
+                        "手書き文字を認識して分類する",
+                        "正解ラベル付きの画像で猫を判定する",
+                        "テストの点数を予測する"
+                    ],
+                    "answer": 0,
+                    "explanation": "クラスタリングのように正解ラベルを持たない学習が教師なし学習。"
+                },
+                {
+                    "q": "AIとロボットの関係について最も適切な説明はどれか。",
+                    "options": [
+                        "AIはロボットの機械部品のことを指す",
+                        "ロボットとはAIによって制御される全てのソフトウェア",
+                        "AIはロボットに知能的な振る舞いを与えるソフトウェア",
+                        "ロボットとAIはまったく無関係の概念"
+                    ],
+                    "answer": 2,
+                    "explanation": "AIはロボットに知的処理を与える役割。ハード面と区別される。"
+                },
+                {
+                    "q": "Transformerの「自己注意（Self-Attention）」とはどのような技術か。",
+                    "options": [
+                        "入力の各要素に均等な重みを与える",
+                        "出力全体に対して一貫した変換を行う",
+                        "単語間の関係性を計算し、重要度に重み付けする",
+                        "画像認識に特化したフィルター処理"
+                    ],
+                    "answer": 2,
+                    "explanation": "自己注意は入力内の単語同士の関係性に基づいて重要度を判断する。"
+                },
+                {
+                    "q": "ChatGPTの「InstructGPT」とは何を目的とした開発か。",
+                    "options": [
+                        "GPUの使用量削減",
+                        "ユーザーの指示に沿った応答の向上",
+                        "ネットワークの速度向上",
+                        "音声認識性能の改善"
+                    ],
+                    "answer": 1,
+                    "explanation": "InstructGPTは人の指示に沿った自然な応答を重視して開発された。"
+                },
+                {
+                    "q": "「RNN」が最も適しているタスクはどれか。",
+                    "options": [
+                        "音声認識や時系列データの処理",
+                        "高解像度画像の生成",
+                        "異常値の検出",
+                        "固定長のベクトル分類"
+                    ],
+                    "answer": 0,
+                    "explanation": "RNNは時系列の依存関係を持つデータに適している。"
+                },
+                {
+                    "q": "ディープフェイクが発生する要因として適切なものはどれか。",
+                    "options": [
+                        "法律の不備",
+                        "AIの生成精度向上",
+                        "インターネットの普及",
+                        "クラウドストレージの増加"
+                    ],
+                    "answer": 1,
+                    "explanation": "AIの生成精度が上がり、リアルな偽コンテンツが容易に作れるようになった。"
+                },
+                {
+                    "q": "AIによる音声生成サービスに関し、正しい説明はどれか。",
+                    "options": [
+                        "画像から音声に自動変換するサービス",
+                        "文字情報をもとに人間のような発話を生成する技術",
+                        "自動通話録音サービス",
+                        "音楽を自動で分類する技術"
+                    ],
+                    "answer": 1,
+                    "explanation": "TTS（Text to Speech）などが該当し、テキストから音声を作る。"
+                },
+                {
+                    "q": "次のうち、Stable Diffusionに関する説明として正しいものはどれか。",
+                    "options": [
+                        "構造化データの整理アルゴリズム",
+                        "動画配信の圧縮方式",
+                        "テキストから画像を生成するAIモデル",
+                        "自然言語の意味解析手法"
+                    ],
+                    "answer": 2,
+                    "explanation": "テキストをもとに画像を生成する深層学習ベースの生成モデル。"
+                },
+                {
+                    "q": "ClaudeやGeminiに共通する特性はどれか。",
+                    "options": [
+                        "文法訂正の専門AI",
+                        "絵文字に特化したチャットボット",
+                        "マルチモーダル対応の大規模言語モデル",
+                        "音声翻訳アプリ"
+                    ],
+                    "answer": 2,
+                    "explanation": "どちらもマルチモーダル対応の大規模言語モデルである。"
+                },
+                {
+                    "q": "「Attention Mechanism」の主な目的はどれか。",
+                    "options": [
+                        "出力を一定に保つためのノイズ制御",
+                        "モデルの学習速度を高める",
+                        "入力の中で重要な情報に重みをつける",
+                        "モデルのサイズを削減する"
+                    ],
+                    "answer": 2,
+                    "explanation": "重要な入力に重みを置くことで、出力の質が高まる技術。"
+                },
+                {
+                    "q": "プロンプト操作における「Context」の役割は何か。",
+                    "options": [
+                        "モデルに使われる重み",
+                        "応答の長さ指定",
+                        "会話や入力の背景情報",
+                        "出力フォーマットの強制"
+                    ],
+                    "answer": 2,
+                    "explanation": "ContextはAIが出力を生成する際に参照する前提・背景情報。"
+                },
+                {
+                    "q": "AIによるテキスト要約の際に最も適したプロンプトはどれか。",
+                    "options": [
+                        "「この文章のキーワードを抽出せよ」",
+                        "「この文章を要約してください」",
+                        "「この文章を文法的に訂正せよ」",
+                        "「この文章にふりがなを振ってください」"
+                    ],
+                    "answer": 1,
+                    "explanation": "プロンプトで「要約してください」と明示することが適切。"
+                },
+                {
+                    "q": "AIによる「文脈の校正」機能の利用例として最も適切なのはどれか。",
+                    "options": [
+                        "機械翻訳の文体を揃える",
+                        "数学の計算式を評価する",
+                        "音声のノイズ除去を行う",
+                        "顔画像を鮮明化する"
+                    ],
+                    "answer": 0,
+                    "explanation": "翻訳後の文体調整や文脈修正に用いられる。"
+                },
+                {
+                    "q": "ChatGPTの「Code Interpreter」機能の用途として最も適しているのはどれか。",
+                    "options": [
+                        "映像生成の制御",
+                        "コードの実行とデータ分析",
+                        "テキスト翻訳の自動化",
+                        "AI倫理に関する判断"
+                    ],
+                    "answer": 1,
+                    "explanation": "コードの実行、グラフ生成、表データ分析などに使える機能。"
+                },
+                {
+                    "q": "AI生成物の「著作権」が問題になる理由はどれか。",
+                    "options": [
+                        "利用料が高すぎるため",
+                        "生成内容が著作物と酷似する可能性があるため",
+                        "すべてのAI生成物が登録制のため",
+                        "データ保存形式が独自であるため"
+                    ],
+                    "answer": 1,
+                    "explanation": "AI生成物が既存著作物に似すぎる場合、著作権問題が発生する。"
+                },
+                {
+                    "q": "ディープラーニングの「誤差逆伝播法（Backpropagation）」の目的は何か。",
+                    "options": [
+                        "モデル構造を自動設計する",
+                        "出力結果の信頼度を可視化する",
+                        "誤差を使って重みを調整する",
+                        "モデルの予測速度を上げる"
+                    ],
+                    "answer": 2,
+                    "explanation": "誤差逆伝播は出力誤差から重みを調整し、モデルを改善する。"
+                },
+                {
+                    "q": "「プロンプトエンジニアリング」が重要視される理由として最も適切なものはどれか。",
+                    "options": [
+                        "ハードウェアの性能向上を目的とする",
+                        "入力形式によって出力結果が大きく左右されるため",
+                        "セキュリティ対策として必須の操作であるため",
+                        "ユーザー登録なしで利用できるため"
+                    ],
+                    "answer": 1,
+                    "explanation": "プロンプト設計は応答結果に直結するため非常に重要。"
+                },
+                {
+                    "q": "AIガバナンスとは主に何を指すか。",
+                    "options": [
+                        "AIによる経営戦略の自動化",
+                        "AI導入時の費用対効果の分析",
+                        "AIの社会的影響に関するルールや体制の整備",
+                        "AIを使ったインフラ整備の予測"
+                    ],
+                    "answer": 2,
+                    "explanation": "AIの影響や利用方法に対する社会的な統制・運用ルールの整備。"
+                },
+                {
+                    "q": "AI原則における「人間中心の考え方」とは何を意味するか。",
+                    "options": [
+                        "AIが全ての決定を下す体制を整える",
+                        "人間の意思や権利を尊重する設計思想",
+                        "完全自律型AIの促進",
+                        "利益追求のためにAIを優先する運用"
+                    ],
+                    "answer": 1,
+                    "explanation": "AIは人間の尊厳を守り、支援的に使うことが求められる。"
+                },
+                {
+                    "q": "「セキュリティ確保」がAI活用において重視される理由はどれか。",
+                    "options": [
+                        "モデルの学習スピードを安定させるため",
+                        "外部からの不正アクセスや悪用を防ぐため",
+                        "モデルサイズの最小化に必要な条件",
+                        "プロンプトの自動補完の条件"
+                    ],
+                    "answer": 1,
+                    "explanation": "AIシステムの悪用や情報漏洩を防ぐため、セキュリティが不可欠。"
+                },
+                {
+                    "q": "AIの「転移学習」の利点として最も適切なものはどれか。",
+                    "options": [
+                        "モデルの推論速度を無制限に高める",
+                        "学習済みモデルを他のタスクに活用できる",
+                        "データ量に関係なく正確な結果が得られる",
+                        "モデルの構造が自動で生成される"
+                    ],
+                    "answer": 1,
+                    "explanation": "既存モデルを再利用できるため、効率的に学習を行える。"
+                },
+                {
+                    "q": "「ハイパーパラメータ」として該当するものはどれか。",
+                    "options": [
+                        "重みとバイアス",
+                        "学習率やバッチサイズ",
+                        "モデルによる予測値",
+                        "ラベル付きの教師データ"
+                    ],
+                    "answer": 1,
+                    "explanation": "学習率やバッチサイズなど、事前設定が必要なパラメータ。"
+                },
+                {
+                    "q": "「フェアネス（公平性）」の観点でAIに求められるのは何か。",
+                    "options": [
+                        "同一の結果をすべての利用者に返すこと",
+                        "偏見の少ない学習と出力を実現すること",
+                        "学習コストを下げること",
+                        "無償提供されること"
+                    ],
+                    "answer": 1,
+                    "explanation": "偏りのない出力を目指すことがAI倫理の基本。"
+                },
+                {
+                    "q": "AIの「バイアス問題」とはどのような課題か。",
+                    "options": [
+                        "同じ結果ばかり返すため予測が固定される",
+                        "計算速度にばらつきが出る",
+                        "特定の価値観に偏った出力をするリスク",
+                        "ノイズデータを処理できない"
+                    ],
+                    "answer": 2,
+                    "explanation": "AIが偏見あるデータで学習し、差別的な結果を出すことがある。"
+                },
+                {
+                    "q": "「UL2R」の特徴として正しいものはどれか。",
+                    "options": [
+                        "音声データに特化したモデル",
+                        "言語タスクの多様性を統合した学習パラダイム",
+                        "単一のタスクにのみ最適化されたモデル",
+                        "画像認識のための教師なし学習手法"
+                    ],
+                    "answer": 1,
+                    "explanation": "UL2Rは多様な言語タスクに対応する統合的な学習方式。"
+                },
+                {
+                    "q": "AI利用者（AI Business User）の役割として適切なものはどれか。",
+                    "options": [
+                        "AIアルゴリズムの開発",
+                        "モデルの学習データを設計する",
+                        "生成AIの活用と業務適用",
+                        "ハードウェアの組み込み制御"
+                    ],
+                    "answer": 2,
+                    "explanation": "生成AIの業務応用や評価を担うのが「AI利用者」。"
+                },
+                {
+                    "q": "「Few-Shotプロンプティング」で例示する内容の目的は何か。",
+                    "options": [
+                        "出力形式を視覚的に整える",
+                        "モデルの予測時間を短縮する",
+                        "望ましい応答パターンを示す",
+                        "トークン数を節約する"
+                    ],
+                    "answer": 2,
+                    "explanation": "望ましい応答例を見せることで、AIに出力パターンを学ばせる。"
+                },
+                {
+                    "q": "AI社会原則で「教育・リテラシー」が求められる背景はどれか。",
+                    "options": [
+                        "全員がAI開発者になるため",
+                        "AIの安全な利用を一般市民も理解するため",
+                        "国際標準の資格取得の義務化に対応するため",
+                        "プロンプト生成が難解だから"
+                    ],
+                    "answer": 1,
+                    "explanation": "市民もAIの仕組みとリスクを理解して利用する必要がある。"
+                },
+                {
+                    "q": "「Top-p（確率的サンプリング）」の目的は何か。",
+                    "options": [
+                        "応答を完全に固定する",
+                        "出力のトークン数を事前に制限する",
+                        "高確率の語句から選択肢を制限する",
+                        "モデルの学習範囲を調整する"
+                    ],
+                    "answer": 2,
+                    "explanation": "確率的に高い語を中心に応答を構成し、自然さと多様性を両立する。"
+                }
+            ]
+        }
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+    let userAnswers = {};
+
+    function renderQuiz() {
+        quizContainer.innerHTML = '';
+        quizData.forEach((section, sectionIndex) => {
+            const sectionHeader = document.createElement('h2');
+            sectionHeader.textContent = section.section;
+            quizContainer.appendChild(sectionHeader);
+
+            section.questions.forEach((question, qIndex) => {
+                const globalIndex = quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0) + qIndex;
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'question-block';
+                questionBlock.id = `q-${globalIndex}`;
+                
+                const questionTitle = document.createElement('div');
+                questionTitle.className = 'question-title';
+                questionTitle.textContent = `Q${globalIndex + 1}. ${question.q}`;
+                questionBlock.appendChild(questionTitle);
+                
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                question.options.forEach((option, oIndex) => {
+                    const optionLabel = document.createElement('label');
+                    const radioInput = document.createElement('input');
+                    radioInput.type = 'radio';
+                    radioInput.name = `question-${globalIndex}`;
+                    radioInput.value = oIndex;
+                    optionLabel.appendChild(radioInput);
+                    optionLabel.appendChild(document.createTextNode(option));
+                    optionsDiv.appendChild(optionLabel);
+                });
+                questionBlock.appendChild(optionsDiv);
+
+                const gradeButton = document.createElement('button');
+                gradeButton.className = 'grade-button';
+                gradeButton.textContent = '回答する';
+                gradeButton.onclick = () => showAnswer(globalIndex, question.answer, question.explanation);
+                questionBlock.appendChild(gradeButton);
+
+                const answerSection = document.createElement('div');
+                answerSection.className = 'answer-section';
+                answerSection.id = `answer-${globalIndex}`;
+                questionBlock.appendChild(answerSection);
+                
+                quizContainer.appendChild(questionBlock);
+            });
+        });
+        loadState();
+    }
+
+    function showAnswer(qIndex, correctAnswer, explanation) {
+        const questionBlock = document.getElementById(`q-${qIndex}`);
+        const answerSection = document.getElementById(`answer-${qIndex}`);
+        const radioInputs = document.getElementsByName(`question-${qIndex}`);
+        let userAnswer = -1;
+        radioInputs.forEach((input, index) => {
+            if (input.checked) {
+                userAnswer = index;
+            }
+        });
+
+        userAnswers[qIndex] = userAnswer;
+        saveState();
+
+        answerSection.innerHTML = '';
+
+        if (userAnswer === correctAnswer) {
+            answerSection.innerHTML += `<div class="answer-header answer-correct">✅ 正解です！</div>`;
+        } else {
+            const selectedOptionText = userAnswer !== -1 ? `あなたが選択した答え: ${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[userAnswer]}` : '未回答';
+            answerSection.innerHTML += `<div class="answer-header answer-incorrect">❌ 不正解です。</div>`;
+            answerSection.innerHTML += `<div class="explanation">${selectedOptionText}</div>`;
+        }
+        answerSection.innerHTML += `<div class="explanation"><strong>正解は「${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[correctAnswer]}」です。</strong></div>`;
+        answerSection.innerHTML += `<div class="explanation"><strong>【解説】</strong>${explanation}</div>`;
+
+        answerSection.style.display = 'block';
+
+        questionBlock.querySelector('.grade-button').style.display = 'none';
+        radioInputs.forEach(input => input.disabled = true);
+    }
+
+    function getSectionIndex(qIndex) {
+        let count = 0;
+        for (let i = 0; i < quizData.length; i++) {
+            count += quizData[i].questions.length;
+            if (qIndex < count) {
+                return i;
+            }
+        }
+    }
+
+    function saveState() {
+        localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+    }
+
+    function loadState() {
+        const savedAnswers = localStorage.getItem('userAnswers');
+        if (savedAnswers) {
+            userAnswers = JSON.parse(savedAnswers);
+            Object.keys(userAnswers).forEach(qIndex => {
+                const userAnswer = userAnswers[qIndex];
+                if (userAnswer !== -1) {
+                    const radioInput = document.querySelector(`input[name="question-${qIndex}"][value="${userAnswer}"]`);
+                    if (radioInput) {
+                        radioInput.checked = true;
+                        
+                        const sectionIndex = getSectionIndex(qIndex);
+                        const qInSection = qIndex - quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0);
+                        const correctAnswer = quizData[sectionIndex].questions[qInSection].answer;
+                        const explanation = quizData[sectionIndex].questions[qInSection].explanation;
+                        
+                        showAnswer(qIndex, correctAnswer, explanation);
+                    }
+                }
+            });
+        }
+    }
+    
+    function exportAnswers() {
+        const data = JSON.stringify(userAnswers);
+        const encodedData = btoa(encodeURIComponent(data));
+        navigator.clipboard.writeText(encodedData)
+            .then(() => {
+                alert("回答状況がクリップボードにコピーされました！");
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+                alert("回答状況のコピーに失敗しました。コンソールを確認してください。");
+            });
+    }
+
+    function showImport() {
+        const importArea = document.getElementById('import-area');
+        importArea.style.display = 'block';
+    }
+
+    function importAnswers() {
+        const importInput = document.getElementById('import-input');
+        const statusMessage = document.getElementById('status-message');
+        const encodedData = importInput.value;
+        try {
+            const decodedData = decodeURIComponent(atob(encodedData));
+            userAnswers = JSON.parse(decodedData);
+            saveState();
+            renderQuiz();
+            statusMessage.textContent = '回答状況をインポートしました！';
+            statusMessage.style.color = '#28a745';
+        } catch (e) {
+            console.error('Failed to import: ', e);
+            statusMessage.textContent = '無効なデータです。インポートに失敗しました。';
+            statusMessage.style.color = '#dc3545';
+        }
+    }
+
+    function clearAnswers() {
+        if (confirm('全ての回答状況をクリアしますか？')) {
+            localStorage.removeItem('userAnswers');
+            userAnswers = {}; // userAnswers変数を空にする
+            renderQuiz();
+            alert('全ての回答状況がクリアされました。');
+        }
+    }
+
+    // Initialize the quiz
+    document.addEventListener('DOMContentLoaded', renderQuiz);
+</script>
+
+</body>
+</html>

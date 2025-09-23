@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成AIパスポート模擬問題</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #1e3a5f;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 40px;
+        }
+        .question-block {
+            background: #fafcff;
+            border: 1px solid #d4e2f4;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            transition: box-shadow 0.3s ease;
+        }
+        .question-block:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .question-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #3b5998;
+        }
+        .options label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .options label:hover {
+            color: #0056b3;
+        }
+        .answer-section {
+            display: none;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #e2e8f0;
+        }
+        .answer-header {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        .answer-correct, .answer-incorrect {
+            font-weight: bold;
+        }
+        .answer-correct {
+            color: #28a745;
+        }
+        .answer-incorrect {
+            color: #dc3545;
+        }
+        .explanation {
+            margin-top: 10px;
+            color: #555;
+        }
+        .grade-button, .export-button, .import-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+        }
+        .grade-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .grade-button:hover {
+            background-color: #0056b3;
+        }
+        .export-button {
+            background-color: #28a745;
+            color: white;
+        }
+        .export-button:hover {
+            background-color: #218838;
+        }
+        .import-button {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .import-button:hover {
+            background-color: #e0a800;
+        }
+        .status-message {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        #import-input {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .clear-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .clear-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>生成AIパスポート模擬問題</h1>
+    <div id="controls">
+        <button class="export-button" onclick="exportAnswers()">結果をエクスポート</button>
+        <button class="import-button" onclick="showImport()">結果をインポート</button>
+        <button class="clear-button" onclick="clearAnswers()">回答をクリア</button>
+        <div id="import-area" style="display:none;">
+            <input type="text" id="import-input" placeholder="ここにエクスポートしたコードを貼り付けてください">
+            <button class="import-button" onclick="importAnswers()">インポート実行</button>
+            <div id="status-message" class="status-message"></div>
+        </div>
+    </div>
+    <div id="quiz-container"></div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            "section": "模擬問題６０問",
+            "questions": [
+                {
+                    "q": "AI（人工知能）の定義として最も適切なのはどれか。",
+                    "options": [
+                        "人の知的作業を学び・推論で模倣するしくみ",
+                        "人間の感情を持つ機械",
+                        "物理作業を自動化する機械装置全般",
+                        "ネットの情報を集めるだけのプログラム"
+                    ],
+                    "answer": 0,
+                    "explanation": "AIは「知的な処理（学習・推論・予測）」を行う仕組みの総称。感情やロボット形状は必須条件ではありません。"
+                },
+                {
+                    "q": "AIが知能を生む基本の2つの仕組みはどれか。",
+                    "options": [
+                        "ハードウェア／ソフトウェア",
+                        "ルールベース／機械学習",
+                        "感情認識／音声合成",
+                        "データベース／ネットワーク"
+                    ],
+                    "answer": 1,
+                    "explanation": "作り方は「明示規則で動く」か「データから学ぶ」かに大別される。現場では併用も多い。"
+                },
+                {
+                    "q": "次のうち、学習の手法ではないものはどれか。",
+                    "options": [
+                        "教師あり学習",
+                        "強化学習",
+                        "ディープフェイク",
+                        "教師なし学習"
+                    ],
+                    "answer": 2,
+                    "explanation": "ディープフェイクは学習“手法”ではなく合成メディアの“用途”。教師あり/なし・強化が主要パラダイム。"
+                },
+                {
+                    "q": "オーバーフィッティングとはどれか。",
+                    "options": [
+                        "未知データで高精度",
+                        "学習が途中停止",
+                        "まったく学習できない",
+                        "訓練に合わせ過ぎて本番で弱くなる"
+                    ],
+                    "answer": 3,
+                    "explanation": "訓練データに過度適合して未知データで精度が落ちる現象。正則化・データ拡張・早期終了などで抑える。"
+                },
+                {
+                    "q": "「AIの4つのレベル」に含まれないものはどれか。",
+                    "options": [
+                        "感情型AI",
+                        "反応型AI",
+                        "限定記憶AI",
+                        "自己認識AI"
+                    ],
+                    "answer": 0,
+                    "explanation": "一般的な区分は「反応型／限定記憶／心の理論／自己認識」。感情型は公式分類ではない。"
+                },
+                {
+                    "q": "第一次AIブームの中心はどれか。",
+                    "options": [
+                        "ビッグデータと深層学習",
+                        "探索・推論のルール型",
+                        "知識ベースのエキスパートシステム",
+                        "画像認識のCNN"
+                    ],
+                    "answer": 1,
+                    "explanation": "第一次は探索・推論などのルール型が中心。第二次は知識工学、第三次は機械学習・深層学習へ。"
+                },
+                {
+                    "q": "Transformerの強みはどれか。",
+                    "options": [
+                        "一方向だけの処理",
+                        "画像専用の畳み込み",
+                        "自己注意で長い関係を並列に扱える",
+                        "強化学習専用"
+                    ],
+                    "answer": 2,
+                    "explanation": "自己注意（Self-Attention）により遠い単語同士の関係を並列に扱え、長文・文脈の保持が得意。RNNより効率的。"
+                },
+                {
+                    "q": "GANの構成に入らないものはどれか。",
+                    "options": [
+                        "生成器（Generator）",
+                        "識別器（Discriminator）",
+                        "敵対的に学ぶ仕組み",
+                        "強化学習エージェント"
+                    ],
+                    "answer": 3,
+                    "explanation": "GANは生成器と識別器を敵対学習（adversarial training）で鍛える構造。強化学習エージェントは必須要素ではない。"
+                },
+                {
+                    "q": "GPT-3のパラメータ数はどれか。",
+                    "options": [
+                        "約1750億",
+                        "約1.17億",
+                        "約15億",
+                        "約1兆"
+                    ],
+                    "answer": 0,
+                    "explanation": "GPT-3は約1750億パラメータ。比較としてGPT-1≈1.17億、GPT-2≈15億で段階的に大型化した。"
+                },
+                {
+                    "q": "OpenAIの動画生成モデル「Sora」の特徴として正しいものはどれか。",
+                    "options": [
+                        "音声→文字変換",
+                        "テキスト→短い動画生成",
+                        "画像→音楽生成",
+                        "動画→静止画抽出"
+                    ],
+                    "answer": 1,
+                    "explanation": "Soraはテキスト指示から自然な短編動画を生成する。音声認識や静止画抽出とは別分野。"
+                },
+                {
+                    "q": "ChatGPTの「高度なデータ解析」（Code Interpreter）でできることはどれか。",
+                    "options": [
+                        "音声の文字起こし",
+                        "テキスト→音楽",
+                        "データ分析・表計算・グラフ化",
+                        "自動動画レンダリング"
+                    ],
+                    "answer": 2,
+                    "explanation": "安全な一時実行環境（Python）でデータ前処理・集計・可視化・簡易モデリング・ファイル入出力ができる。"
+                },
+                {
+                    "q": "GPT-4の「マルチモーダル」とはどれか。",
+                    "options": [
+                        "高速化",
+                        "多言語だけ",
+                        "自動バグ修正",
+                        "テキスト・画像・音声など複数形式を扱う"
+                    ],
+                    "answer": 3,
+                    "explanation": "テキスト・画像・音声など複数形式を横断処理できることを指す。単なる高速化や多言語化とは異なる。例：画像→説明文、音声→文字起こし（対応モデル）"
+                },
+                {
+                    "q": "ClaudeやGeminiの共通点はどれか。",
+                    "options": [
+                        "ハード依存の音声合成エンジン",
+                        "日本語だけに特化した小型モデル",
+                        "感情生成専用モデル",
+                        "別企業が作った高性能な対話型AI"
+                    ],
+                    "answer": 3,
+                    "explanation": "Claude（Anthropic）とGemini（Google）はOpenAI以外の大手が開発する高性能な対話モデル。"
+                },
+                {
+                    "q": "Stable Diffusionの説明として正しいものはどれか。",
+                    "options": [
+                        "音声の学習モデル",
+                        "テキストから画像を作る拡散モデル",
+                        "動画→テキスト変換",
+                        "手書き文字の認識"
+                    ],
+                    "answer": 1,
+                    "explanation": "拡散過程とVAEなどを用い、文章から画像を生成する代表的モデル。OCRや音声モデルではない。"
+                },
+                {
+                    "q": "次のうち、ディープフェイクの悪用に該当しない例はどれか。",
+                    "options": [
+                        "有名人の偽動画で詐欺広告",
+                        "他人の名誉を傷つける偽映像",
+                        "研究や創作として、実在しない人物の顔画像を生成・掲出",
+                        "実在人物になりすまし政治発言を偽装"
+                    ],
+                    "answer": 2,
+                    "explanation": "社会的な問題として議論される「ディープフェイク」の悪用事例に注目しています。①、②、④は、いずれも実在の人物の肖像権や名誉を侵害する典型的な悪用です。一方、③の「実在しない架空の人物」の生成は、技術的には深層学習を使いますが、肖像権侵害や詐欺といった悪用には直結しないため、この文脈では「悪用ではない」と判断されます。"
+                },
+                {
+                    "q": "「要配慮個人情報」に含まれないものはどれか。",
+                    "options": [
+                        "病歴",
+                        "宗教・信条",
+                        "犯罪歴",
+                        "氏名・住所"
+                    ],
+                    "answer": 3,
+                    "explanation": "氏名・住所は通常の個人情報。病歴・信条・犯罪歴は差別・不利益につながり得るため要配慮に該当。"
+                },
+                {
+                    "q": "日本のAI社会原則にないものはどれか。",
+                    "options": [
+                        "経済優先",
+                        "公平性",
+                        "透明性",
+                        "プライバシー保護"
+                    ],
+                    "answer": 0,
+                    "explanation": "日本の原則は人間中心・安全・公平・透明性・プライバシー等。「経済優先」は掲げられていない。"
+                },
+                {
+                    "q": "少ない例でタスクをつかませる手法はどれか。",
+                    "options": [
+                        "Zero-shot",
+                        "Few-shot",
+                        "Fine-tuning",
+                        "Reinforcement"
+                    ],
+                    "answer": 1,
+                    "explanation": "良い見本を少数示して“この書き方”を学ばせる方法。Zero-shotは例なしでぶれやすい。"
+                },
+                {
+                    "q": "文章生成AIが苦手になりやすいのはどれか。",
+                    "options": [
+                        "定型文作成",
+                        "長文の構成",
+                        "最新ニュースの事実確認",
+                        "やさしい要約"
+                    ],
+                    "answer": 2,
+                    "explanation": "学習時点の知識に依存するため最新ニュースの真偽確認は苦手。検索やRAGを併用して補う。"
+                },
+                {
+                    "q": "2025年発表のGPT-5の説明として正しいものはどれか。",
+                    "options": [
+                        "応答/推論を自動切替する統合型",
+                        "ChatGPT専用でAPIなし",
+                        "2019年公開の旧版",
+                        "画像特化でテキスト非対応"
+                    ],
+                    "answer": 0,
+                    "explanation": "GPT-5は“素早い応答”と“深い推論”を状況に応じて自動切替する統合システムとして案内されている。ChatGPT専用や画像特化のみという説明は不正確。"
+                },
+                {
+                    "q": "ディープフェイク（深層偽造）の不適切利用として最も適切なのはどれか。",
+                    "options": [
+                        "研究目的で手法を検証する",
+                        "本人同意なく名誉を傷つける偽動画を拡散する",
+                        "授業で作例として短時間上映する",
+                        "映画のVFXとして制作に使う"
+                    ],
+                    "answer": 1,
+                    "explanation": "本人同意なく名誉を傷つける偽動画の拡散は名誉毀損や肖像権侵害のリスクが高い。研究・教育・正当な制作利用は適切な配慮の下で許容され得る。"
+                },
+                {
+                    "q": "音声生成AIの社会的リスクとして最も重要なのはどれか。",
+                    "options": [
+                        "サンプリング周波数の低下",
+                        "声のなりすましによる詐欺",
+                        "拡張子の互換性不足",
+                        "自動正規化の失敗"
+                    ],
+                    "answer": 1,
+                    "explanation": "ボイスフィッシング等の“声のなりすまし”は実被害につながりやすい。二要素認証や別チャネル確認で対策する。"
+                },
+                {
+                    "q": "画像生成AIで基礎として学ばれる代表的な技術の組合せとして最も適切なのはどれか。",
+                    "options": [
+                        "VAEとGAN",
+                        "RNN",
+                        "BERT",
+                        "物理シミュレータ"
+                    ],
+                    "answer": 0,
+                    "explanation": "VAEは潜在空間に圧縮して再構成する生成枠組み、GANは生成器と識別器の競合学習で写実性を高める基礎技術の代表例。なお、その後は拡散モデル（例：Stable Diffusion）が中核となっている点も押さえるとよい。"
+                },
+                {
+                    "q": "「動画生成AI」の代表例として正しい組合せはどれか。",
+                    "options": [
+                        "BERT／Whisper／CLIP",
+                        "DALL·E／Midjourney／Stable Diffusion",
+                        "Sora／Runway Gen-3／Luma Dream Machine",
+                        "GPT-2／VAE／ResNet"
+                    ],
+                    "answer": 2,
+                    "explanation": "③はいずれもテキスト等から動画を生成する代表例。②は主に静止画生成のモデル群、①はNLP/音声認識/マルチモーダル識別で動画生成ではない。④は生成と分類の基盤要素の混在で動画生成AIの代表例とは言いにくい。近年はGen-4など新世代モデルの登場も進んでいる。"
+                },
+                {
+                    "q": "悪質なQRコードに潜む典型的な危険はどれか。",
+                    "options": [
+                        "画像解像度の劣化",
+                        "フィッシングサイトへの誘導",
+                        "端末の発熱増大",
+                        "バッテリー劣化の促進"
+                    ],
+                    "answer": 1,
+                    "explanation": "偽サイトに誘導してIDや決済情報を詐取する手口が典型。URLプレビューや短縮URLの展開確認で回避する。"
+                },
+                {
+                    "q": "公衆Wi-Fiの代表的な脅威はどれか。",
+                    "options": [
+                        "TLS証明書の自動更新",
+                        "帯域制限の緩和",
+                        "中間者攻撃（MITM）による盗聴",
+                        "DNSキャッシュ増加"
+                    ],
+                    "answer": 2,
+                    "explanation": "偽APや暗号化不備により通信を傍受される中間者攻撃が代表的脅威。VPN利用とHTTPS確認が有効。"
+                },
+                {
+                    "q": "ソーシャルエンジニアリングの一種「プレテキスト攻撃」の説明として正しいものはどれか。",
+                    "options": [
+                        "架空の肩書や用件で信用させ情報を引き出す",
+                        "機器を物理破壊する",
+                        "暗号鍵長を短縮する",
+                        "モデルを微調整する"
+                    ],
+                    "answer": 0,
+                    "explanation": "もっともらしい肩書や状況を装い信用させて情報を引き出す心理的攻撃。技術的侵入でない点が特徴。"
+                },
+                {
+                    "q": "SNSのプライバシー設定の基本原則として最も適切なのはどれか。",
+                    "options": [
+                        "既定で全体公開にする",
+                        "位置情報は常時オン",
+                        "連絡先は常時自動同期",
+                        "最小権限・公開範囲の限定"
+                    ],
+                    "answer": 3,
+                    "explanation": "“最小権限”が原則。不要な位置情報や連絡先アクセスはオフ、公開範囲を限定する。"
+                },
+                {
+                    "q": "「要配慮個人情報」に該当するものはどれか。",
+                    "options": [
+                        "郵便番号",
+                        "取引先の会社名",
+                        "病歴・信条・人種など",
+                        "公開済みの業績"
+                    ],
+                    "answer": 2,
+                    "explanation": "差別・不利益につながるデリケートな情報（病歴・信条・人種等）は厳格な管理が必要。"
+                },
+                {
+                    "q": "匿名加工情報の要件として適切なのはどれか。",
+                    "options": [
+                        "復元可能で個人識別できる",
+                        "統計処理などで識別性を下げ復元困難",
+                        "同意不要で無制限共有",
+                        "マスキングは不要"
+                    ],
+                    "answer": 1,
+                    "explanation": "個人識別性を下げ、元に戻せないよう加工して利用・提供のルールに従う。復元可能や無制限共有は不可。"
+                },
+                {
+                    "q": "BERTとGPTの主要構成の違いとして正しいものはどれか。",
+                    "options": [
+                        "どちらも双方向エンコーダ",
+                        "どちらもデコーダのみ",
+                        "BERTは自己回帰デコーダ",
+                        "BERTは双方向エンコーダ、GPTは自己回帰デコーダ"
+                    ],
+                    "answer": 3,
+                    "explanation": "BERTは双方向エンコーダで理解タスクに強く、GPTは自己回帰デコーダで次トークン予測（生成）に強い。"
+                },
+                {
+                    "q": "位置エンコーディング（Positional Encoding）の主目的はどれか。",
+                    "options": [
+                        "順序情報をモデルに与える",
+                        "学習率を自動調整する",
+                        "画像解像度を向上させる",
+                        "活性化関数を置換する"
+                    ],
+                    "answer": 0,
+                    "explanation": "自己注意は順序を持たないため、位置情報を注入して系列性を扱えるようにする。"
+                },
+                {
+                    "q": "Multi-Head Attention の利点として最も適切なのはどれか。",
+                    "options": [
+                        "計算量をゼロにする",
+                        "多様な視点で並列に注意を向けられる",
+                        "勾配消失を完全解決する",
+                        "行列演算を不要化する"
+                    ],
+                    "answer": 1,
+                    "explanation": "複数ヘッドで文法関係・語義・参照など異なる“見方”を並列に学習でき、表現力が増す。"
+                },
+                {
+                    "q": "GPT-1／GPT-2／GPT-3 のパラメータ規模の正しい並びはどれか。",
+                    "options": [
+                        "1.5億／3億／30億",
+                        "1.17億／12億／500億",
+                        "1.17億／15億／1750億",
+                        "1億／10億／100億"
+                    ],
+                    "answer": 2,
+                    "explanation": "GPT-1≈1.17億、GPT-2≈15億、GPT-3≈1750億。世代ごとに大規模化した。"
+                },
+                {
+                    "q": "誤差逆伝播法で計算された勾配を用いて、モデルの重みを更新する手法はどれか？",
+                    "options": [
+                        "勾配降下法",
+                        "正規化",
+                        "ドロップアウト",
+                        "活性化関数"
+                    ],
+                    "answer": 0,
+                    "explanation": "誤差逆伝播法は損失を減らすための勾配を計算し、勾配降下法はその勾配を使ってモデルの重みを更新する手法です。これら2つはニューラルネットワークの学習でセットで使われます。正規化とドロップアウトは過学習を防ぐための手法です。活性化関数はモデルの非線形性を高めるための関数です。"
+                },
+                {
+                    "q": "CNNの特徴として最も適切なのはどれか。",
+                    "options": [
+                        "自己注意が中核",
+                        "記憶ゲートで長期依存を扱う",
+                        "Encoder-Decoderが必須",
+                        "畳み込みで局所特徴を抽出する"
+                    ],
+                    "answer": 3,
+                    "explanation": "カーネルで局所パターンを抽出し、プーリング等で階層的特徴を学ぶ。自己注意や記憶ゲートは別系統。"
+                },
+                {
+                    "q": "良いプロンプトの4要素に含まれる組合せとして正しいものはどれか。",
+                    "options": [
+                        "Role／Memory／Cache／Seed",
+                        "Persona／Dataset／Metric／Guard",
+                        "Instruction／Context／Input Data／Output Indicator",
+                        "Task／Reward／Policy／Value"
+                    ],
+                    "answer": 2,
+                    "explanation": "明確な指示（Instruction）、前提（Context）、入力データ、出力形式（Output Indicator）を揃えると再現性が上がる。"
+                },
+                {
+                    "q": "ディープフェイク疑いの初動として適切なのはどれか。",
+                    "options": [
+                        "SNSで即時共有",
+                        "直感で真偽判断",
+                        "画質向上で確認",
+                        "出所・改変痕跡の検証"
+                    ],
+                    "answer": 3,
+                    "explanation": "発信元・メタデータ・改変痕跡の検証が先。即拡散や“勘”による判断は誤情報拡散の原因となる。"
+                },
+                {
+                    "q": "クラウド共有リンクの安全設定として最も適切なのはどれか。",
+                    "options": [
+                        "だれでも編集可・期限なしで公開",
+                        "閲覧者に編集権限を付与",
+                        "パスワードなしで外部に配布",
+                        "閲覧のみ・有効期限付き・パスワード保護"
+                    ],
+                    "answer": 3,
+                    "explanation": "共有は“閲覧のみ”を基本に、有効期限とパスワードでアクセスを制限する。編集権限の付与や公開設定は最小限に。"
+                },
+                {
+                    "q": "生成AI活用における個人情報の取り扱いで最も適切なのはどれか。",
+                    "options": [
+                        "入力前に匿名化・最小化を徹底",
+                        "出力だけを監査すれば十分",
+                        "保存は端末に平文のまま",
+                        "同意は社内で一括代行"
+                    ],
+                    "answer": 0,
+                    "explanation": "入力前の“最小化・匿名化”が根本対策。出力監査だけや平文保存は不適切。保存時は暗号化とアクセス制御を行う。"
+                },
+                {
+                    "q": "AIモデルを特定のタスクに特化させるため、少量データで再学習させる手法はどれか。",
+                    "options": [
+                        "ファインチューニング（Fine-tuning）",
+                        "転移学習（Transfer Learning）",
+                        "Zero-shot",
+                        "プルーニング（Pruning）"
+                    ],
+                    "answer": 0,
+                    "explanation": "ファインチューニングは、事前学習済みの汎用モデルを使い、特定の少量データで追加学習させてモデルを特化させる手法です。転移学習はより広い概念で、ある分野の学習済み知識を別の分野に応用することを指します。Zero-shotは追加学習をせず、指示だけで対応させる手法です。プルーニングはモデルの軽量化手法です。近年はフル微調整に加え、LoRAなどのPEFT（パラメータ効率化微調整）で計算・データ負荷を抑える手法も広く使われます。"
+                },
+                {
+                    "q": "社内FAQを最新化したい。更新頻度が高く再学習が負担のとき最適なのはどれか。",
+                    "options": [
+                        "追加学習のみで都度対応する",
+                        "RAGで外部データを参照する",
+                        "温度を下げて安定化を図る",
+                        "Few-shotのみで表現を整える"
+                    ],
+                    "answer": 1,
+                    "explanation": "RAGは外部データを検索・取り込みながら回答するため、知識の鮮度はソース更新に直結します。頻繁更新に再学習は不要で、コストも抑えられます。頻繁更新はRAGが適する。最新のナレッジを都度参照でき、再学習の手間とコストを抑えられる。温度やFew-shotは知識の新旧を刷新しない。"
+                },
+                {
+                    "q": "初見の社内様式文を自然な語調で数例まねたい。最も適したプロンプト手法はどれか。",
+                    "options": [
+                        "Zero-shot",
+                        "連続プロンプト",
+                        "Few-shot",
+                        "温度最大化"
+                    ],
+                    "answer": 2,
+                    "explanation": "数例の良い見本を示すと語彙・トーン・構成を模倣しやすい。Zero-shotはぶれやすく、温度上げは散逸を招く。"
+                },
+                {
+                    "q": "ディープフェイク疑いの初動として適切なのはどれか。",
+                    "options": [
+                        "SNSで即時共有する",
+                        "直感で真偽を判断する",
+                        "画質を上げて確認する",
+                        "出所・改変痕跡を検証する"
+                    ],
+                    "answer": 3,
+                    "explanation": "発信元・メタデータ・改変痕跡・逆検索などで真正性を検証してから共有する。即拡散や直観頼みは誤情報の拡大につながる。"
+                },
+                {
+                    "q": "生成AIで作った図表に他人の写真を合成し公開する。適切な対応はどれか。",
+                    "options": [
+                        "権利・同意の確認とクレジット等の適切表示",
+                        "研究用途なので自動的に自由利用",
+                        "AI生成ゆえ著作権は発生しない",
+                        "「引用」を名目に無断掲載"
+                    ],
+                    "answer": 0,
+                    "explanation": "他者の写真は肖像権・著作権・場合によりパブリシティ権の対象。公開前に権利者の同意・表示を確認。自動で「引用」になることはない。"
+                },
+                {
+                    "q": "データ拡張（augmentation）の主目的として適切なのはどれか。",
+                    "options": [
+                        "画像を意図的に劣化させる",
+                        "過学習を抑えて汎化を高める",
+                        "学習率を固定する",
+                        "モデルを凍結する"
+                    ],
+                    "answer": 1,
+                    "explanation": "回転・色変換・切り抜き等で多様性を増やし、過学習を抑制して汎化を上げる。学習率固定や凍結は別のテクニック。"
+                },
+                {
+                    "q": "出力の体裁を安定させたい。効果が最も高い指示はどれか。",
+                    "options": [
+                        "温度を0にする",
+                        "例示を増やす",
+                        "出力形式（見出し・項目順等）を明示する",
+                        "モデルを変更する"
+                    ],
+                    "answer": 2,
+                    "explanation": "見出し・箇条書き・表・JSONキーなど形式を明示すると再現性が大幅に向上。温度や例示は補助的。"
+                },
+                {
+                    "q": "不正競争防止法で「営業秘密」として保護されやすい要件の組合せはどれか。",
+                    "options": [
+                        "公知・有用・秘密管理",
+                        "非公知・価値が低い・秘密管理なし",
+                        "公知・有用・管理なし",
+                        "非公知・有用・秘密管理"
+                    ],
+                    "answer": 3,
+                    "explanation": "「非公知・有用・秘密管理」の3要件が典型。管理不備や公知情報は保護されにくい。"
+                },
+                {
+                    "q": "GANの基本構成として正しいのはどれか。",
+                    "options": [
+                        "生成器と識別器",
+                        "Attentionのみ",
+                        "ルールと事例",
+                        "事前学習と蒸留"
+                    ],
+                    "answer": 0,
+                    "explanation": "生成器が偽物を作り、識別器が真偽を見分ける対立学習で双方が強化される。"
+                },
+                {
+                    "q": "肖像権とパブリシティ権の違いとして適切なのはどれか。",
+                    "options": [
+                        "どちらも著作権に含まれる",
+                        "肖像権は人格権、パブリシティ権は顧客吸引力の財産権",
+                        "どちらも人格権",
+                        "どちらも財産権"
+                    ],
+                    "answer": 1,
+                    "explanation": "肖像権は人格権で“無断利用されない権利”。パブリシティ権は著名性の経済的価値（顧客吸引力）に関わる財産権。"
+                },
+                {
+                    "q": "VAEの「潜在変数」の役割として正しいのはどれか。",
+                    "options": [
+                        "出力確率の正規化",
+                        "入力寸法の単なる調整",
+                        "データの本質的特徴の圧縮表現",
+                        "学習率の自動調整"
+                    ],
+                    "answer": 2,
+                    "explanation": "潜在空間に本質特徴を圧縮して表現し、そこからのサンプリングで生成・補間が可能になる。"
+                },
+                {
+                    "q": "校正依頼プロンプトの設計として効果的なのはどれか。",
+                    "options": [
+                        "「直して」とだけ伝える",
+                        "誤りだけを列挙させる",
+                        "感想を求める",
+                        "差分表示と修正根拠の提示を求める"
+                    ],
+                    "answer": 3,
+                    "explanation": "Before/Afterの差分表示と、文法・用字・論理など修正根拠の提示を求めると品質と検収効率が上がる。"
+                },
+                {
+                    "q": "生成AIサービス選定で適切な観点はどれか。",
+                    "options": [
+                        "目的適合・法令/規約準拠・運用性",
+                        "ベンチマーク値のみ",
+                        "価格のみ",
+                        "流行の有無"
+                    ],
+                    "answer": 0,
+                    "explanation": "要件適合・法令/規約順守・SLA/拡張性など総合で見る。価格やベンチマーク“だけ”では失敗しやすい。"
+                },
+                {
+                    "q": "AI社会原則で重視される視点として最も適切なのはどれか。",
+                    "options": [
+                        "完全自動化の義務",
+                        "透明性や説明責任",
+                        "匿名利用の禁止",
+                        "競争最優先"
+                    ],
+                    "answer": 1,
+                    "explanation": "透明性と説明責任は信頼確保の要。完全自動化の義務や匿名禁止は一般原則ではない。"
+                },
+                {
+                    "q": "最新情報の取得が前提のタスクで有効な運用はどれか。",
+                    "options": [
+                        "モデル単独で断定する",
+                        "温度だけ調整する",
+                        "検索や資料指定（RAG等）を併用する",
+                        "長文をそのまま投入する"
+                    ],
+                    "answer": 2,
+                    "explanation": "最新情報は外部ソースで裏取りする運用が必須。温度調整や長文投入だけでは事実性は担保できない。"
+                },
+                {
+                    "q": "AIガバナンス構築の基本姿勢として適切なのはどれか。",
+                    "options": [
+                        "事後対応のみ",
+                        "一律全面禁止",
+                        "完全外部委託",
+                        "リスクベース運用"
+                    ],
+                    "answer": 3,
+                    "explanation": "影響度・データ種類・連携範囲に応じてコントロール強度を調整する“リスクベース”が現実的。"
+                },
+                {
+                    "q": "疑わしい生成動画を受け取った。最も適切な行動はどれか。",
+                    "options": [
+                        "公式ソースや一次情報で照合する",
+                        "すぐ切り抜いて共有する",
+                        "高解像度で再保存する",
+                        "直観に従って判断する"
+                    ],
+                    "answer": 0,
+                    "explanation": "一次情報・公式発表・複数の信頼ソースで照合する。切り抜き共有や直観判断は誤拡散の原因。"
+                },
+                {
+                    "q": "業務自動化のためのプロンプト設計で効果的なのはどれか。",
+                    "options": [
+                        "一文に全指示を詰め込む",
+                        "タスクを段階に分解し基準を明示する",
+                        "乱数で多様化させる",
+                        "長文を丸投げする"
+                    ],
+                    "answer": 1,
+                    "explanation": "目的→入力→判定基準→チェック→例外…と段階化し、各段で出力形式を指定すると再現性が高い。"
+                },
+                {
+                    "q": "音声合成（TTS）の適切な利用例として最も妥当なのはどれか。",
+                    "options": [
+                        "有名人の声で宣伝に流用する",
+                        "同僚の声を無断複製する",
+                        "視認困難者向けの読み上げに使う",
+                        "課金回避の複製配布を行う"
+                    ],
+                    "answer": 2,
+                    "explanation": "アクセシビリティ支援は適切。一方、無断複製や著名人声の商用利用は権利侵害の恐れが高い。"
+                },
+                {
+                    "q": "2025年3月に発表されたRunway「Gen-4」の特徴として正しいのはどれか。",
+                    "options": [
+                        "音楽から画像を生成する特化モデル",
+                        "3Dゲーム開発専用に訓練されたAI",
+                        "自動運転向け音声認識特化",
+                        "テキストから高精細な動画を生成するAI"
+                    ],
+                    "answer": 3,
+                    "explanation": "Gen-4はテキスト指示から高精細な動画を生成するモデルで、複数ショット間の人物やシーンの一貫性（連続性）を高めた点が特徴。動画生成の基盤モデルであり、音楽→画像変換や自動運転向け音声認識などの特化モデルではない。"
+                }
+            ]
+        }
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+    let userAnswers = {};
+
+    function renderQuiz() {
+        quizContainer.innerHTML = '';
+        quizData.forEach((section, sectionIndex) => {
+            const sectionHeader = document.createElement('h2');
+            sectionHeader.textContent = section.section;
+            quizContainer.appendChild(sectionHeader);
+
+            section.questions.forEach((question, qIndex) => {
+                const globalIndex = quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0) + qIndex;
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'question-block';
+                questionBlock.id = `q-${globalIndex}`;
+                
+                const questionTitle = document.createElement('div');
+                questionTitle.className = 'question-title';
+                questionTitle.textContent = `Q${globalIndex + 1}. ${question.q}`;
+                questionBlock.appendChild(questionTitle);
+                
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                question.options.forEach((option, oIndex) => {
+                    const optionLabel = document.createElement('label');
+                    const radioInput = document.createElement('input');
+                    radioInput.type = 'radio';
+                    radioInput.name = `question-${globalIndex}`;
+                    radioInput.value = oIndex;
+                    optionLabel.appendChild(radioInput);
+                    optionLabel.appendChild(document.createTextNode(option));
+                    optionsDiv.appendChild(optionLabel);
+                });
+                questionBlock.appendChild(optionsDiv);
+
+                const gradeButton = document.createElement('button');
+                gradeButton.className = 'grade-button';
+                gradeButton.textContent = '回答する';
+                gradeButton.onclick = () => showAnswer(globalIndex, question.answer, question.explanation);
+                questionBlock.appendChild(gradeButton);
+
+                const answerSection = document.createElement('div');
+                answerSection.className = 'answer-section';
+                answerSection.id = `answer-${globalIndex}`;
+                questionBlock.appendChild(answerSection);
+                
+                quizContainer.appendChild(questionBlock);
+            });
+        });
+        loadState();
+    }
+
+    function showAnswer(qIndex, correctAnswer, explanation) {
+        const questionBlock = document.getElementById(`q-${qIndex}`);
+        const answerSection = document.getElementById(`answer-${qIndex}`);
+        const radioInputs = document.getElementsByName(`question-${qIndex}`);
+        let userAnswer = -1;
+        radioInputs.forEach((input, index) => {
+            if (input.checked) {
+                userAnswer = index;
+            }
+        });
+
+        userAnswers[qIndex] = userAnswer;
+        saveState();
+
+        answerSection.innerHTML = '';
+
+        if (userAnswer === correctAnswer) {
+            answerSection.innerHTML += `<div class="answer-header answer-correct">✅ 正解です！</div>`;
+        } else {
+            const selectedOptionText = userAnswer !== -1 ? `あなたが選択した答え: ${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[userAnswer]}` : '未回答';
+            answerSection.innerHTML += `<div class="answer-header answer-incorrect">❌ 不正解です。</div>`;
+            answerSection.innerHTML += `<div class="explanation">${selectedOptionText}</div>`;
+        }
+        answerSection.innerHTML += `<div class="explanation"><strong>正解は「${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[correctAnswer]}」です。</strong></div>`;
+        answerSection.innerHTML += `<div class="explanation"><strong>【解説】</strong>${explanation}</div>`;
+
+        answerSection.style.display = 'block';
+
+        questionBlock.querySelector('.grade-button').style.display = 'none';
+        radioInputs.forEach(input => input.disabled = true);
+    }
+
+    function getSectionIndex(qIndex) {
+        let count = 0;
+        for (let i = 0; i < quizData.length; i++) {
+            count += quizData[i].questions.length;
+            if (qIndex < count) {
+                return i;
+            }
+        }
+    }
+
+    function saveState() {
+        localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+    }
+
+    function loadState() {
+        const savedAnswers = localStorage.getItem('userAnswers');
+        if (savedAnswers) {
+            userAnswers = JSON.parse(savedAnswers);
+            Object.keys(userAnswers).forEach(qIndex => {
+                const userAnswer = userAnswers[qIndex];
+                if (userAnswer !== -1) {
+                    const radioInput = document.querySelector(`input[name="question-${qIndex}"][value="${userAnswer}"]`);
+                    if (radioInput) {
+                        radioInput.checked = true;
+                        
+                        const sectionIndex = getSectionIndex(qIndex);
+                        const qInSection = qIndex - quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0);
+                        const correctAnswer = quizData[sectionIndex].questions[qInSection].answer;
+                        const explanation = quizData[sectionIndex].questions[qInSection].explanation;
+                        
+                        showAnswer(qIndex, correctAnswer, explanation);
+                    }
+                }
+            });
+        }
+    }
+    
+    function exportAnswers() {
+        const data = JSON.stringify(userAnswers);
+        const encodedData = btoa(encodeURIComponent(data));
+        navigator.clipboard.writeText(encodedData)
+            .then(() => {
+                alert("回答状況がクリップボードにコピーされました！");
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+                alert("回答状況のコピーに失敗しました。コンソールを確認してください。");
+            });
+    }
+
+    function showImport() {
+        const importArea = document.getElementById('import-area');
+        importArea.style.display = 'block';
+    }
+
+    function importAnswers() {
+        const importInput = document.getElementById('import-input');
+        const statusMessage = document.getElementById('status-message');
+        const encodedData = importInput.value;
+        try {
+            const decodedData = decodeURIComponent(atob(encodedData));
+            userAnswers = JSON.parse(decodedData);
+            saveState();
+            renderQuiz();
+            statusMessage.textContent = '回答状況をインポートしました！';
+            statusMessage.style.color = '#28a745';
+        } catch (e) {
+            console.error('Failed to import: ', e);
+            statusMessage.textContent = '無効なデータです。インポートに失敗しました。';
+            statusMessage.style.color = '#dc3545';
+        }
+    }
+
+    function clearAnswers() {
+        if (confirm('全ての回答状況をクリアしますか？')) {
+            localStorage.removeItem('userAnswers');
+            userAnswers = {}; // userAnswers変数を空にする
+            renderQuiz();
+            alert('全ての回答状況がクリアされました。');
+        }
+    }
+
+    // Initialize the quiz
+    document.addEventListener('DOMContentLoaded', renderQuiz);
+</script>
+
+</body>
+</html>
