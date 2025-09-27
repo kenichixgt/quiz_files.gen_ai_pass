@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成AIパスポート3章練習問題</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #1e3a5f;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 40px;
+        }
+        .question-block {
+            background: #fafcff;
+            border: 1px solid #d4e2f4;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            transition: box-shadow 0.3s ease;
+        }
+        .question-block:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .question-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #3b5998;
+        }
+        .options label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .options label:hover {
+            color: #0056b3;
+        }
+        .answer-section {
+            display: none;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #e2e8f0;
+        }
+        .answer-header {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        .answer-correct, .answer-incorrect {
+            font-weight: bold;
+        }
+        .answer-correct {
+            color: #28a745;
+        }
+        .answer-incorrect {
+            color: #dc3545;
+        }
+        .explanation {
+            margin-top: 10px;
+            color: #555;
+        }
+        .grade-button, .export-button, .import-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+        }
+        .grade-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .grade-button:hover {
+            background-color: #0056b3;
+        }
+        .export-button {
+            background-color: #28a745;
+            color: white;
+        }
+        .export-button:hover {
+            background-color: #218838;
+        }
+        .import-button {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .import-button:hover {
+            background-color: #e0a800;
+        }
+        .status-message {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        #import-input {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .clear-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .clear-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>生成AIパスポート3章練習問題</h1>
+    <div id="controls">
+        <button class="export-button" onclick="exportAnswers()">結果をエクスポート</button>
+        <button class="import-button" onclick="showImport()">結果をインポート</button>
+        <button class="clear-button" onclick="clearAnswers()">回答をクリア</button>
+        <div id="import-area" style="display:none;">
+            <input type="text" id="import-input" placeholder="ここにエクスポートしたコードを貼り付けてください">
+            <button class="import-button" onclick="importAnswers()">インポート実行</button>
+            <div id="status-message" class="status-message"></div>
+        </div>
+    </div>
+    <div id="quiz-container"></div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            "section": "第3章 確認問題",
+            "questions": [
+                {
+                    "q": "自然言語処理（NLP）とは、コンピュータに人間の言葉を理解させるための技術である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n自然言語処理（NLP）とは、コンピュータが自然言語（日本語や英語など）の複雑さや曖昧さを扱いながら、テキストデータを理解・生成するために必要な技術の総称です。要するに、コンピュータに人間の言葉を理解させるための技術を指します。"
+                },
+                {
+                    "q": "テキスト生成AIを利用することにより、与えられたテキストの内容を理解し、関連する情報の補完・拡張やアイデアの創出ができ、偏見や差別的な表現の生成も無くなる。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nテキスト生成AIを利用することにより、与えられたテキストの内容を理解し、関連する情報を補完・拡張することや、既存の文章や記事に情報を付加したり、新たなアイデアの視点を提供したりもできます。しかし、学習データに偏りがある場合、テキスト生成AIはその偏りを反映する可能性があるため、偏見や差別的な表現の生成がなくなるわけではありません。"
+                },
+                {
+                    "q": "テキスト生成AIを利用することにより、偽情報や誤った情報が生成される可能性があることに加え、プライバシーとセキュリティに関する問題が生じる可能性もある。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nテキスト生成AIは大量のデータを学習しているため、正確な情報を生成することが期待されますが、いわゆるハルシネーションとして、偽情報や誤った情報をさも真実の情報のように生成することもあります。また、テキスト生成AIは、ユーザーが入力するテキストから学習することがあるため、入力テキストに個人情報やセンシティブ情報が含まれていると、プライバシーとセキュリティに関する問題が生じる可能性もあります。"
+                },
+                {
+                    "q": "画像生成AIにおける画像データ作成手法としては、RNNは用いられない。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n画像生成AIにおける画像データ作成手法としては、RNNは用いられません。RNNは、回帰型ニューラルネットワークで、過去の情報を記憶しながら（＝回帰型）新しい入力を処理するもので、主に、音楽などの時系列データの処理に用いられます。"
+                },
+                {
+                    "q": "画像生成AIにおける画像データ作成手法としては、GANやVAEが用いられない。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n画像生成AIにおける画像データ作成手法として、GANやVAEが用いられます。"
+                },
+                {
+                    "q": "画像生成AIの利活用における一般的な前処理手法は、画像のリサイズ、正規化、データの水増し等である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n画像生成AIを利用する場合、一般的な前処理手法として、画像のリサイズ、正規化、データの水増し等が挙げられます。"
+                },
+                {
+                    "q": "音楽生成AIの学習データとして、MIDIファイルは用いられない。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n音楽生成AIの学習データとしては、MIDIファイルや音楽記録法に基づく音符のシーケンスなど、さまざまな形式で存在する音楽データが用いられます。なお、JPEGファイルは画像ファイルであり、一般に音楽生成AIの学習データとしては用いられません。"
+                },
+                {
+                    "q": "音楽生成AIの学習過程では、ディープラーニングモデルを用いてデータセットの情報を水増しするが、RNNは、シーケンスデータの処理に長け、音楽（音符の連続）の生成に適する。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n音楽生成AIの学習過程では、RNNなどのディープラーニングモデルを用いて、データセットの情報を水増しします。RNNは、シーケンスデータの処理に長けているため、音楽（音符の連続）の生成に適しています。"
+                },
+                {
+                    "q": "生成AIを利用することにより、与えられたデータの内容を理解し、関連する情報を補完・拡張することができるが、特定のデータが不足している場合において、不足部分を補って生成することも可能である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n生成AIは、与えられたデータの内容を理解し、関連する情報を補完・拡張することが可能であるメリットがあります。そのため、特定のデータが不足している場合でも、不足分を補って生成することができます。"
+                },
+                {
+                    "q": "音声生成AIのトレーニングにおいては、一般的に教師あり学習が用いられる。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n音声生成AIの学習では、大量の音声データを使用してトレーニングをしますが、その際、一般的に教師あり学習が用いられます。"
+                },
+                {
+                    "q": "動画生成AIのトレーニングにおいては、GANとVAEは用いられない。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n動画生成AIの学習において、GANとVAEは最も一般的に用いられる手法です。動画生成の過程では、GANは本物らしいフレーム生成の役割を、また、VAEはデータの生成モデルを学習する役割を担います。"
+                },
+                {
+                    "q": "動画生成AIのトレーニングにおいては、AIが動画データを処理しやすいようにフレームごとに分割する前処理をするが、動画の各フレーム間の一貫性を保つことが必要である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n動画生成AIの学習では、AIが動画データを処理しやすいようにフレームごとに分割する前処理をしますが、動画は時間的に連続するフレームの集合のため、各フレーム間の一貫性を保つことが必要です。"
+                },
+                {
+                    "q": "動画生成AIのトレーニングにおいては、RNNは利用されない。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n動画は時間的に連続するフレームの集合であるため、各フレーム間の一貫性を保つことが必要です。そのため、動画生成AIのトレーニングでは、RNNのようなシーケンスデータを扱うことができるネットワークが利用されます。"
+                },
+                {
+                    "q": "生成AIの利用のメリットとして、アクセシビリティの向上が挙げられる。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n生成AIの利用により、専門知識がなくても、音楽・画像・動画制作をしたり、手軽に高速かつ正確なプログラミングコードを作成・修正したりすることが可能です。そのため、メリットとしてアクセシビリティ（アクセスのしやすさ）の向上が挙げられます。"
+                },
+                {
+                    "q": "生成AIの利用のデメリットとして、その業界の職業に影響を与える可能性が挙げられる。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n生成AIの利用のデメリットとして、たとえば、音楽生成AIで生成された音楽が大量に拡散・利用されると、人間の音楽家に対する需要が減少するなど、その業界の職業に影響を与える可能性が挙げられます。"
+                },
+                {
+                    "q": "ディープフェイク（深層偽造）とは、ディープラーニング等を利用することで、非常にリアルな画像コンテンツなどを作成し、人を騙すことを目的として使用される技術である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nディープフェイク（深層偽造）とは、ディープラーニングや生成AIを利用することで、極めてリアルな画像コンテンツなどを作成し、人を故意に騙すことを目的として使用される技術です。"
+                },
+                {
+                    "q": "ディープラーニングや生成AIを活用して、フェイク画像を生成する技術をディープフェイクというが、人間の目や現行のAI技術で見分けることが十分可能であるため、虚偽の映像が生成・拡散されるリスクは低い。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n生成AIによって極めてリアルな合成結果が得られるため、偽情報やなりすましなどの悪用や現行のAI技術では見抜くことが難しくなってきています。そのため、偽情報（ディープフェイク・フェイクニュース）の拡散など、社会的な問題も引き起こしています。"
+                }
+            ]
+        }
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+    let userAnswers = {};
+
+    function renderQuiz() {
+        quizContainer.innerHTML = '';
+        quizData.forEach((section, sectionIndex) => {
+            const sectionHeader = document.createElement('h2');
+            sectionHeader.textContent = section.section;
+            quizContainer.appendChild(sectionHeader);
+
+            section.questions.forEach((question, qIndex) => {
+                const globalIndex = quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0) + qIndex;
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'question-block';
+                questionBlock.id = `q-${globalIndex}`;
+                
+                const questionTitle = document.createElement('div');
+                questionTitle.className = 'question-title';
+                questionTitle.textContent = `Q${globalIndex + 1}. ${question.q}`;
+                questionBlock.appendChild(questionTitle);
+                
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                question.options.forEach((option, oIndex) => {
+                    const optionLabel = document.createElement('label');
+                    const radioInput = document.createElement('input');
+                    radioInput.type = 'radio';
+                    radioInput.name = `question-${globalIndex}`;
+                    radioInput.value = oIndex;
+                    optionLabel.appendChild(radioInput);
+                    optionLabel.appendChild(document.createTextNode(option));
+                    optionsDiv.appendChild(optionLabel);
+                });
+                questionBlock.appendChild(optionsDiv);
+
+                const gradeButton = document.createElement('button');
+                gradeButton.className = 'grade-button';
+                gradeButton.textContent = '回答する';
+                gradeButton.onclick = () => showAnswer(globalIndex, question.answer, question.explanation);
+                questionBlock.appendChild(gradeButton);
+
+                const answerSection = document.createElement('div');
+                answerSection.className = 'answer-section';
+                answerSection.id = `answer-${globalIndex}`;
+                questionBlock.appendChild(answerSection);
+                
+                quizContainer.appendChild(questionBlock);
+            });
+        });
+        loadState();
+    }
+
+    function showAnswer(qIndex, correctAnswer, explanation) {
+        const questionBlock = document.getElementById(`q-${qIndex}`);
+        const answerSection = document.getElementById(`answer-${qIndex}`);
+        const radioInputs = document.getElementsByName(`question-${qIndex}`);
+        let userAnswer = -1;
+        radioInputs.forEach((input, index) => {
+            if (input.checked) {
+                userAnswer = index;
+            }
+        });
+
+        userAnswers[qIndex] = userAnswer;
+        saveState();
+
+        answerSection.innerHTML = '';
+
+        if (userAnswer === correctAnswer) {
+            answerSection.innerHTML += `<div class="answer-header answer-correct">✅ 正解です！</div>`;
+        } else {
+            const selectedOptionText = userAnswer !== -1 ? `あなたが選択した答え: ${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[userAnswer]}` : '未回答';
+            answerSection.innerHTML += `<div class="answer-header answer-incorrect">❌ 不正解です。</div>`;
+            answerSection.innerHTML += `<div class="explanation">${selectedOptionText}</div>`;
+        }
+        answerSection.innerHTML += `<div class="explanation"><strong>正解は「${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[correctAnswer]}」です。</strong></div>`;
+        answerSection.innerHTML += `<div class="explanation"><strong>【解説】</strong>${explanation}</div>`;
+
+        answerSection.style.display = 'block';
+
+        questionBlock.querySelector('.grade-button').style.display = 'none';
+        radioInputs.forEach(input => input.disabled = true);
+    }
+
+    function getSectionIndex(qIndex) {
+        let count = 0;
+        for (let i = 0; i < quizData.length; i++) {
+            count += quizData[i].questions.length;
+            if (qIndex < count) {
+                return i;
+            }
+        }
+    }
+
+    function saveState() {
+        localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+    }
+
+    function loadState() {
+        const savedAnswers = localStorage.getItem('userAnswers');
+        if (savedAnswers) {
+            userAnswers = JSON.parse(savedAnswers);
+            Object.keys(userAnswers).forEach(qIndex => {
+                const userAnswer = userAnswers[qIndex];
+                if (userAnswer !== -1) {
+                    const radioInput = document.querySelector(`input[name="question-${qIndex}"][value="${userAnswer}"]`);
+                    if (radioInput) {
+                        radioInput.checked = true;
+                        
+                        const sectionIndex = getSectionIndex(qIndex);
+                        const qInSection = qIndex - quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0);
+                        const correctAnswer = quizData[sectionIndex].questions[qInSection].answer;
+                        const explanation = quizData[sectionIndex].questions[qInSection].explanation;
+                        
+                        showAnswer(qIndex, correctAnswer, explanation);
+                    }
+                }
+            });
+        }
+    }
+    
+    function exportAnswers() {
+        const data = JSON.stringify(userAnswers);
+        const encodedData = btoa(encodeURIComponent(data));
+        navigator.clipboard.writeText(encodedData)
+            .then(() => {
+                alert("回答状況がクリップボードにコピーされました！");
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+                alert("回答状況のコピーに失敗しました。コンソールを確認してください。");
+            });
+    }
+
+    function showImport() {
+        const importArea = document.getElementById('import-area');
+        importArea.style.display = 'block';
+    }
+
+    function importAnswers() {
+        const importInput = document.getElementById('import-input');
+        const statusMessage = document.getElementById('status-message');
+        const encodedData = importInput.value;
+        try {
+            const decodedData = decodeURIComponent(atob(encodedData));
+            userAnswers = JSON.parse(decodedData);
+            saveState();
+            renderQuiz();
+            statusMessage.textContent = '回答状況をインポートしました！';
+            statusMessage.style.color = '#28a745';
+        } catch (e) {
+            console.error('Failed to import: ', e);
+            statusMessage.textContent = '無効なデータです。インポートに失敗しました。';
+            statusMessage.style.color = '#dc3545';
+        }
+    }
+
+    function clearAnswers() {
+        if (confirm('全ての回答状況をクリアしますか？')) {
+            localStorage.removeItem('userAnswers');
+            userAnswers = {}; // userAnswers変数を空にする
+            renderQuiz();
+            alert('全ての回答状況がクリアされました。');
+        }
+    }
+
+    // Initialize the quiz
+    document.addEventListener('DOMContentLoaded', renderQuiz);
+</script>
+
+</body>
+</html>

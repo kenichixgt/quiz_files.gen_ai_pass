@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成AIパスポート2章練習問題</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #1e3a5f;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 40px;
+        }
+        .question-block {
+            background: #fafcff;
+            border: 1px solid #d4e2f4;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            transition: box-shadow 0.3s ease;
+        }
+        .question-block:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .question-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #3b5998;
+        }
+        .options label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .options label:hover {
+            color: #0056b3;
+        }
+        .answer-section {
+            display: none;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #e2e8f0;
+        }
+        .answer-header {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        .answer-correct, .answer-incorrect {
+            font-weight: bold;
+        }
+        .answer-correct {
+            color: #28a745;
+        }
+        .answer-incorrect {
+            color: #dc3545;
+        }
+        .explanation {
+            margin-top: 10px;
+            color: #555;
+        }
+        .grade-button, .export-button, .import-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+        }
+        .grade-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .grade-button:hover {
+            background-color: #0056b3;
+        }
+        .export-button {
+            background-color: #28a745;
+            color: white;
+        }
+        .export-button:hover {
+            background-color: #218838;
+        }
+        .import-button {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .import-button:hover {
+            background-color: #e0a800;
+        }
+        .status-message {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        #import-input {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .clear-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .clear-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>生成AIパスポート2章練習問題</h1>
+    <div id="controls">
+        <button class="export-button" onclick="exportAnswers()">結果をエクスポート</button>
+        <button class="import-button" onclick="showImport()">結果をインポート</button>
+        <button class="clear-button" onclick="clearAnswers()">回答をクリア</button>
+        <div id="import-area" style="display:none;">
+            <input type="text" id="import-input" placeholder="ここにエクスポートしたコードを貼り付けてください">
+            <button class="import-button" onclick="importAnswers()">インポート実行</button>
+            <div id="status-message" class="status-message"></div>
+        </div>
+    </div>
+    <div id="quiz-container"></div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            "section": "第2章 確認問題",
+            "questions": [
+                {
+                    "q": "1980年代後半に、ジェフリー・ヒントンとテリー・セジノフスキーの率いる研究グループによって、ボルツマンマシンが提唱された。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nボルツマンマシンは、確率的なニューラルネットワークの一種で、1980年代後半に、ジェフリー・ヒントンとテリー・セジノフスキーの率いる研究グループによって提唱されました。"
+                },
+                {
+                    "q": "制限付きボルツマンマシンが改良されて、ボルツマンマシンが生まれた。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nボルツマンマシンの登場によって、多層学習が可能になり、性能、制約、研究が下火になっていたAI学習の分野に活気が戻りました。しかし、学習できるデータ量が大幅に増えたことで処理に膨大な時間がかかるようになり、実用化するには未完成なモデルとなりました。そこで、ボルツマンマシンの問題を改善するため、1986年に開発されたのが制限付きボルツマンマシンです。"
+                },
+                {
+                    "q": "制限付きボルツマンマシンは、人工ニューロンの層間の接続を特定のルールに基づいて制限し、データ層間をネットワークへの入力部分と推定部分の2つに分けることで、効率化している。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n制限付きボルツマンマシンは、人工ニューロン（ノード）の層の接続をランダムではなく、特定のルールに基づいて制限し、データ層間をネットワークへの入力部分と推定部分の2つに分けることで、効率化しています。"
+                },
+                {
+                    "q": "制限付きボルツマンマシンは、教師あり学習をすることはできるが、教師なし学習をすることはできない。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n制限付きボルツマンマシンは、教師あり学習のみならず、教師なし学習をすることも可能です。"
+                },
+                {
+                    "q": "自己回帰モデルは、過去のデータから将来を予測する方法で、株価や天気などの時間軸の経過により変化するデータの予測に特に効果的である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n自己回帰モデルは、過去のデータから将来を予測する方法で、時系列データ（株価や天気などの時間の経過により変化するデータ）の予測に、特に効果的です。"
+                },
+                {
+                    "q": "ディープラーニングは、人間の脳の働きを模倣した技術で、複雑なパターンを学習する能力があるが、2006年に制限付きボルツマンマシンを多段的に重ねた深層ネットワークが提唱され、そこから飛躍的に発展した。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nディープラーニングは、人間の脳の働きを模倣した技術で、複雑なパターンを学習する能力があります。2006年に制限付きボルツマンマシンを多段的に重ねた深層ネットワークが提唱され、ディープラーニングはそこから飛躍的に発展しました。"
+                },
+                {
+                    "q": "CNNは、画像認識や画像処理において非常に効果的なモデルであるが、画像の局所的な特徴から全体的な特徴を抽出することはできない。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nCNN（畳み込みニューラルネットワーク）では、一般的な順伝播型のニューラルネットワークとは違い、視覚的な仕組みが組み込まれ、画像の一部分（局所的な範囲）から特徴を抽出し、次の階層に対応付けをしていきます。これを繰り返すことで、画像の局所的な特徴から全体的な特徴を抽出できます。"
+                },
+                {
+                    "q": "VAEは、デコーダとエンコーダの２つの部分から構成されるが、データの重要な特徴を捉えた潜在ベクトル（潜在変数）と呼ばれる低次元の表現に変換することで、データの重要な特徴を捉えた潜在ベクトル（潜在変数）と呼ばれる低次元の表現に変換することである。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nVAEは、エンコーダとデコーダの２つの部分から構成されます。入力されたデータをもとにデータの重要な特徴を捉えた潜在ベクトル（潜在変数）と呼ばれる低次元の表現に変換する役割を担うのは、エンコーダです。なお、デコーダは、入力として受け取った潜在ベクトルから、元のデータに近いものを生成する役割を担います。"
+                },
+                {
+                    "q": "GANは、生成器と識別器という２つのネットワークから構成され、この２つのモデルが互いに競い合う形で行われる。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nGANは、生成器と識別器という２つのネットワークから構成され、GANのトレーニングは、２つのモデルが互いに競い合う形で行われます。生成器は、ランダムなノイズベクトル（ランダムな数字の列）や潜在空間のサンプル（データの特徴を表す情報）を入力として受け取り、それを元にデータの生成を試みるもので、識別器を騙すようなデータを生成します。一方、識別器は、生成器が生成したデータと本物のデータを区別する役割を持ち、生成器が生成したデータについて、本物のデータと比較して真偽を判断します。"
+                },
+                {
+                    "q": "RNNとは、回帰型ニューラルネットワークのことで、過去の情報を記憶しながら新しい入力を処理するという特性があるが、音声や音声などの長い連続したシーケンスデータの処理に適する。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nRNNとは、回帰型ニューラルネットワークのことで、過去の情報を記憶しながら（＝回帰型）新しい入力を処理するという特性があります。ただし、数単語や音声などの長い連続したシーケンスデータには適さず、勾配消失を引き起こす可能性があります。"
+                },
+                {
+                    "q": "LSTMは、並列学習に適し、大規模データの学習にも時間がかからない。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nLSTMとは、Long Short-Term Memory の略で、長・短期記憶と訳され、より長い時間におけるシーケンスデータの依存関係の学習ができるようになり、より複雑なパターンの時系列データの予測も可能になりました。ただし、時系列での学習になるため、並列学習に適しません。また、大規模データを学習するのには多大な時間がかかります。"
+                },
+                {
+                    "q": "Transformerモデルは、文章や音楽の処理に特化するモデルであるが、RNNやLSTMと異なり、データの順番を考慮せず、すべての要素を一度に考慮に入れて処理できるという特性がある。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nTransformerモデルは、文章や音楽の処理に特化した深いニューラルネットワークの一種です。このモデルは、文章の中で特に重要な部分に注目する自己注意力（Self-Attention）という新機能を採用し、Attention層のみを使用して構築されています。また、RNNやLSTMと異なり、データの順番に関わりなく、すべての要素を一度に考慮に入れて処理できるという特性があります。"
+                },
+                {
+                    "q": "BERTモデルの重要な特性の一つに双方向性があるが、これは、単語の意味がその周囲の文脈により変わる場合でも、適切に意味を捉えることができうるというものである。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nBERTモデルは、2018年10月にGoogleが開発した自然言語処理のモデルで、Transformerの一部がベースです。このモデルの重要な特徴の一つに双方向性があります。これは、単語の意味を特定する際に、その単語の直後の情報を利用することで、単語の意味がその周囲の文脈により変わる場合でも、適切に意味を捉えることができるというものです。BERTに採用されているMLM（Masked Language Model）という仕組みは、ランダムに選ばれた単語をマスク（隠す）してその単語を予測し、マスクした単語の直後の単語のすべての情報を使用することで、前後のどの単語からでも、その単語を読むことも可能となっています。"
+                },
+                {
+                    "q": "BERTモデルの特徴の一つであるNSPは、ある文が別の文の直後に来るかどうかを予測するもので、これにより、２つの文の関連性を理解する能力がある。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nBERTモデルの特徴の一つであるNSP（Next Sentence Prediction）は、ある文が別の文の直後に来るかどうかを予測するというもので、BERTには、２つの文の関連性を理解する能力があります。"
+                },
+                {
+                    "q": "BERTは、2019年にFacebook AIがRoBERTaの改良モデルとして発表したもので、RoBERTaの約10倍のデータ量と長い時間を使って訓練されている。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nRoBERTaは、2019年にFacebook AIがBERTの改良モデルとして発表したもので、BERTの約10倍のデータ量と長い時間を使って訓練されています。"
+                },
+                {
+                    "q": "ALBERTは、BERTを軽量にしたモデルで、パラメータの数を大幅に削減し、モデルの効率を向上させているが、ハードウェアリソースの制限や電力の制限など、計算リソースが制限されている環境においては、高いパフォーマンスを実現することができない。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nALBERTは、BERTを軽量にしたモデルで、パラメータの数を大幅に削減し、モデルの効率を向上させています。また、ハードウェアリソースの制限や電力の制限（低コストのパソコン、スマートフォン等）や電力の制限（低容量バッテリーを使用した機器等）など、計算リソースが制限されている環境でも高いパフォーマンスを実現することが可能です。"
+                },
+                {
+                    "q": "GPT-2は、非常に性能が高かっために、潜在的な誤用や悪用に関する危険性から、初めはフルモデルの公開が控えられた。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nGPT-2は、2019年発表され、発表当時において非常に性能の高いものでした。しかし、性能が高い分、潜在的な誤用や悪用に関する危険性も高くなることが想定されたことから、予防策として、初めはフルモデルの公開が控えられました。"
+                },
+                {
+                    "q": "GPT-3.5は、InstructGPTと異なり、RLHFを採用していない。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nGPT-3.5は、InstructGPTと同じく、RLHFを採用しています。RLHFは、強化学習の一つの手法で、人間のフィードバックに基づいて出力を補正する方法です。人間がモデルの行動を評価し、その評価というフィードバックを基に、モデルはより適切な回答等を学習していくことを繰り返すことで、より人間にとって適切な回答や文章を生成する能力を習得していきます。こうして、人間の一定の価値観に基づく範囲内で動作するように設計されている点が、GPT-3との大きな違いです。"
+                },
+                {
+                    "q": "ハルシネーションとは、AIモデルが不正確な情報・誤った情報を、あたかも正確な情報・正しい情報のように生成することをいい、GPT-4は、GPT-3.5と比べ、ハルシネーションの割合が低下している。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nハルシネーション（hallucination）とは、AIモデルが不正確な情報・誤った情報を、あたかも正確な情報・正しい情報のように生成することをいいます。GPT-4は、GPT-3.5と比べ、ハルシネーションの割合が19~29%程度減少しています。"
+                },
+                {
+                    "q": "GPT-4は、マルチモーダルなモデルで、テキストや画像、音声、動画など異なる種類のデータを一度に処理することが可能である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nGPT-4は、マルチモーダルなモデルで、テキストや画像、音声、動画などの異なる種類のデータを一度に処理することが可能です。人間のコミュニケーションの複雑さに近づけるため、複数の入力モードを組み合わせることで、より洗練された理解や対話が可能になることを目指しています。"
+                },
+                {
+                    "q": "Code Interpreterは、ChatGPTができることを大幅に広げる機能で、プログラミング言語「Python」を使用し、自分でソースコードを書いて実行することができる。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nCode Interpreterは、「コード（Code）の通訳者（Interpreter）」の意味で、ChatGPTができることを大幅に広げる機能です。この機能では、ChatGPTが「Python」というプログラミング言語を使用し、自分でソースコード（コンピュータに与える命令）を書いて実行することができます。これにより、データの分析、グラフの作成、数学の計算、ファイルの読み書きなどが可能となりました。"
+                },
+                {
+                    "q": "GPTsは、ChatGPTを特定の仕事や役割に特化し、カスタマイズしたオリジナルのChatGPTを作ることのできる機能であり、「アシスタント風」など特定の振る舞いを設定したり、特定のファイルを参照したり、外部APIとの連携はできない。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nGPTsは、「Generative Pre-trained Transformers」の略で、ChatGPTを特定の仕事や役割に特化し、自分の用途に合わせてカスタマイズした「オリジナルのChatGPT」を作ることのできる機能です。これにより、たとえば「アシスタント風」や「カスタマーサポート風」など特定の振る舞いを設定したり、特定のファイルを参照したり、外部APIとの連携をしたりすることができます。なお、自分で作ったGPTを「GPTストア」に公開したり、逆に、「GPTストア」に公開された他の人が作ったGPTを利用したりすることもでき、さまざまな専門的な機能を持ったGPTを簡単に使えるようになりました。"
+                },
+                {
+                    "q": "GPT-4o の「o」は「オムニ＝（全ての）」の意味で、GPT-4o は、テキストだけでなく、画像や音声も組み合わせて処理できる「オムニモーダルモデル」と呼ばれるタイプのAIである。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nGPT-4oは、2024年5月にリリースされた新しいChatGPTのバージョンで、「o」は「オムニ（全ての）」を意味します。GPT-4oは、従来の「マルチモーダルモデル」と異なり、テキストだけでなく、画像や音声も組み合わせて処理できる「オムニモーダルモデル」と呼ばれるタイプのAIです。"
+                }
+            ]
+        }
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+    let userAnswers = {};
+
+    function renderQuiz() {
+        quizContainer.innerHTML = '';
+        quizData.forEach((section, sectionIndex) => {
+            const sectionHeader = document.createElement('h2');
+            sectionHeader.textContent = section.section;
+            quizContainer.appendChild(sectionHeader);
+
+            section.questions.forEach((question, qIndex) => {
+                const globalIndex = quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0) + qIndex;
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'question-block';
+                questionBlock.id = `q-${globalIndex}`;
+                
+                const questionTitle = document.createElement('div');
+                questionTitle.className = 'question-title';
+                questionTitle.textContent = `Q${globalIndex + 1}. ${question.q}`;
+                questionBlock.appendChild(questionTitle);
+                
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                question.options.forEach((option, oIndex) => {
+                    const optionLabel = document.createElement('label');
+                    const radioInput = document.createElement('input');
+                    radioInput.type = 'radio';
+                    radioInput.name = `question-${globalIndex}`;
+                    radioInput.value = oIndex;
+                    optionLabel.appendChild(radioInput);
+                    optionLabel.appendChild(document.createTextNode(option));
+                    optionsDiv.appendChild(optionLabel);
+                });
+                questionBlock.appendChild(optionsDiv);
+
+                const gradeButton = document.createElement('button');
+                gradeButton.className = 'grade-button';
+                gradeButton.textContent = '回答する';
+                gradeButton.onclick = () => showAnswer(globalIndex, question.answer, question.explanation);
+                questionBlock.appendChild(gradeButton);
+
+                const answerSection = document.createElement('div');
+                answerSection.className = 'answer-section';
+                answerSection.id = `answer-${globalIndex}`;
+                questionBlock.appendChild(answerSection);
+                
+                quizContainer.appendChild(questionBlock);
+            });
+        });
+        loadState();
+    }
+
+    function showAnswer(qIndex, correctAnswer, explanation) {
+        const questionBlock = document.getElementById(`q-${qIndex}`);
+        const answerSection = document.getElementById(`answer-${qIndex}`);
+        const radioInputs = document.getElementsByName(`question-${qIndex}`);
+        let userAnswer = -1;
+        radioInputs.forEach((input, index) => {
+            if (input.checked) {
+                userAnswer = index;
+            }
+        });
+
+        userAnswers[qIndex] = userAnswer;
+        saveState();
+
+        answerSection.innerHTML = '';
+
+        if (userAnswer === correctAnswer) {
+            answerSection.innerHTML += `<div class="answer-header answer-correct">✅ 正解です！</div>`;
+        } else {
+            const selectedOptionText = userAnswer !== -1 ? `あなたが選択した答え: ${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[userAnswer]}` : '未回答';
+            answerSection.innerHTML += `<div class="answer-header answer-incorrect">❌ 不正解です。</div>`;
+            answerSection.innerHTML += `<div class="explanation">${selectedOptionText}</div>`;
+        }
+        answerSection.innerHTML += `<div class="explanation"><strong>正解は「${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[correctAnswer]}」です。</strong></div>`;
+        answerSection.innerHTML += `<div class="explanation"><strong>【解説】</strong>${explanation}</div>`;
+
+        answerSection.style.display = 'block';
+
+        questionBlock.querySelector('.grade-button').style.display = 'none';
+        radioInputs.forEach(input => input.disabled = true);
+    }
+
+    function getSectionIndex(qIndex) {
+        let count = 0;
+        for (let i = 0; i < quizData.length; i++) {
+            count += quizData[i].questions.length;
+            if (qIndex < count) {
+                return i;
+            }
+        }
+    }
+
+    function saveState() {
+        localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+    }
+
+    function loadState() {
+        const savedAnswers = localStorage.getItem('userAnswers');
+        if (savedAnswers) {
+            userAnswers = JSON.parse(savedAnswers);
+            Object.keys(userAnswers).forEach(qIndex => {
+                const userAnswer = userAnswers[qIndex];
+                if (userAnswer !== -1) {
+                    const radioInput = document.querySelector(`input[name="question-${qIndex}"][value="${userAnswer}"]`);
+                    if (radioInput) {
+                        radioInput.checked = true;
+                        
+                        const sectionIndex = getSectionIndex(qIndex);
+                        const qInSection = qIndex - quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0);
+                        const correctAnswer = quizData[sectionIndex].questions[qInSection].answer;
+                        const explanation = quizData[sectionIndex].questions[qInSection].explanation;
+                        
+                        showAnswer(qIndex, correctAnswer, explanation);
+                    }
+                }
+            });
+        }
+    }
+    
+    function exportAnswers() {
+        const data = JSON.stringify(userAnswers);
+        const encodedData = btoa(encodeURIComponent(data));
+        navigator.clipboard.writeText(encodedData)
+            .then(() => {
+                alert("回答状況がクリップボードにコピーされました！");
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+                alert("回答状況のコピーに失敗しました。コンソールを確認してください。");
+            });
+    }
+
+    function showImport() {
+        const importArea = document.getElementById('import-area');
+        importArea.style.display = 'block';
+    }
+
+    function importAnswers() {
+        const importInput = document.getElementById('import-input');
+        const statusMessage = document.getElementById('status-message');
+        const encodedData = importInput.value;
+        try {
+            const decodedData = decodeURIComponent(atob(encodedData));
+            userAnswers = JSON.parse(decodedData);
+            saveState();
+            renderQuiz();
+            statusMessage.textContent = '回答状況をインポートしました！';
+            statusMessage.style.color = '#28a745';
+        } catch (e) {
+            console.error('Failed to import: ', e);
+            statusMessage.textContent = '無効なデータです。インポートに失敗しました。';
+            statusMessage.style.color = '#dc3545';
+        }
+    }
+
+    function clearAnswers() {
+        if (confirm('全ての回答状況をクリアしますか？')) {
+            localStorage.removeItem('userAnswers');
+            userAnswers = {}; // userAnswers変数を空にする
+            renderQuiz();
+            alert('全ての回答状況がクリアされました。');
+        }
+    }
+
+    // Initialize the quiz
+    document.addEventListener('DOMContentLoaded', renderQuiz);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成AIパスポート1章練習問題</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #1e3a5f;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 40px;
+        }
+        .question-block {
+            background: #fafcff;
+            border: 1px solid #d4e2f4;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            transition: box-shadow 0.3s ease;
+        }
+        .question-block:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .question-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #3b5998;
+        }
+        .options label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .options label:hover {
+            color: #0056b3;
+        }
+        .answer-section {
+            display: none;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #e2e8f0;
+        }
+        .answer-header {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        .answer-correct, .answer-incorrect {
+            font-weight: bold;
+        }
+        .answer-correct {
+            color: #28a745;
+        }
+        .answer-incorrect {
+            color: #dc3545;
+        }
+        .explanation {
+            margin-top: 10px;
+            color: #555;
+        }
+        .grade-button, .export-button, .import-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+        }
+        .grade-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .grade-button:hover {
+            background-color: #0056b3;
+        }
+        .export-button {
+            background-color: #28a745;
+            color: white;
+        }
+        .export-button:hover {
+            background-color: #218838;
+        }
+        .import-button {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .import-button:hover {
+            background-color: #e0a800;
+        }
+        .status-message {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        #import-input {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .clear-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .clear-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>生成AIパスポート1章練習問題</h1>
+    <div id="controls">
+        <button class="export-button" onclick="exportAnswers()">結果をエクスポート</button>
+        <button class="import-button" onclick="showImport()">結果をインポート</button>
+        <button class="clear-button" onclick="clearAnswers()">回答をクリア</button>
+        <div id="import-area" style="display:none;">
+            <input type="text" id="import-input" placeholder="ここにエクスポートしたコードを貼り付けてください">
+            <button class="import-button" onclick="importAnswers()">インポート実行</button>
+            <div id="status-message" class="status-message"></div>
+        </div>
+    </div>
+    <div id="quiz-container"></div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            "section": "第1章 確認問題",
+            "questions": [
+                {
+                    "q": "AIは、物理的な機械の形で存在する。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 1,
+                    "explanation": "【誤】\nAIは、知覚、認識、推論、学習、問題解決能力などの人間の知能を再現する能力を持ちます。そして、ロボットと異なり、ソフトウェアやアプリケーションの形で存在します。"
+                },
+                {
+                    "q": "AIの研究は、第二次世界大戦などを背景として、始まった。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 0,
+                    "explanation": "【正】\nAI研究の背景としては、第二次世界大戦や計算機の発達などが挙げられます。"
+                },
+                {
+                    "q": "AIの進化に伴い、人間の仕事が奪われる可能性に加え、プライバシーや倫理的な問題が生じうる可能性も危惧されている。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 0,
+                    "explanation": "【正】\nAIの進化に伴い、人間の仕事が奪われる可能性が危惧されていますが、これに加え、プライバシーや倫理的な問題が生じる可能性も指摘されています。"
+                },
+                {
+                    "q": "AIに知能をもたらす仕組みとして、大きく分けるとクラスタリングと機械学習の２つの手法がある。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 1,
+                    "explanation": "【誤】\nAIに知能をもたらす仕組みとして、大きく分けるとルールベースと機械学習の２つの手法があります。"
+                },
+                {
+                    "q": "ルールベースは、大量のルールをプログラムする必要がない簡易なシステムであり、開発やメンテナンスの時間とコストを節約できる。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 1,
+                    "explanation": "【誤】\nルールベースは、大量のルールをプログラムする必要があります。また、そのために開発やメンテナンスに時間とコストがかかります。"
+                },
+                {
+                    "q": "機械学習は、従来のルールベースの人工知能に対し、コンピュータ自身がデータからパターンを見出し、予測や判断を行うというアプローチである。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 0,
+                    "explanation": "【正】\n機械学習は、従来のルールベースの人工知能と異なり、コンピュータ自身がデータからパターンを見出し、予測や判断を行うというアプローチです。"
+                },
+                {
+                    "q": "教師あり学習とは、入力したデータに対して正解データのペアを与えずに、モデルをトレーニングする手法である。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 1,
+                    "explanation": "【誤】\n教師あり学習とは、入力したデータに対して正解データ（教師データ）のペアを与えて、モデルをトレーニングする手法です。"
+                },
+                {
+                    "q": "次元削減とは、データの次元を減らすことで、情報を保持しながらデータの特徴を抽出することをいう。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 0,
+                    "explanation": "【正】\n次元削減とは、データの次元（変数）を減らすことで、情報を保持しながらデータの特徴を抽出することをいいます。"
+                },
+                {
+                    "q": "強化学習は、ゲームAIの開発などのみならず、自動運転車のような実世界の技術開発にも広く応用されている。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 0,
+                    "explanation": "【正】\n強化学習は、ゲームAIの開発だけでなく、自動運転車のような実世界の技術開発にも広く応用されています。"
+                },
+                {
+                    "q": "ノーフリーランチ定理とは、どの問題にも万能で汎用的なアルゴリズムが存在するというものである。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 1,
+                    "explanation": "【誤】\nノーフリーランチ定理とは、「どの問題にも万能で汎用的なアルゴリズムは存在しない」というものです。"
+                },
+                {
+                    "q": "ニューラルネットワークを構成するノードが、情報や物事の大切さの情報量を調整することを「重み付け」という。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 0,
+                    "explanation": "【正】\nニューラルネットワークで情報を処理するときは、すべての情報がフラットに扱えるのではなく、どの情報が大切で、どの情報がそれほど大切ではないか、重要性に差が設けられます。人間の神経細胞におけるシナプスの太さ（＝情報や物事の大切さ自体）を「重み」といいます。そして、ニューラルネットワークを構成する人工ニューロン（ノード）がその情報量を調整すること（＝重要性に差異を設けること）を「重み付け」といいます。"
+                },
+                {
+                    "q": "過学習の回避方法としては、アーリーストッピング、正則化、ドロップアウトといったものがある。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 0,
+                    "explanation": "【正】\n過学習の回避方法としては、アーリーストッピング、正則化、ドロップアウトといったものがあります。「アーリーストッピング」は、データの一部を検証用データとして取っておき、それを使用して学習の過程で定期的にモデルの性能をチェックすることで、最適なタイミングで学習をストップさせる方法です。また、「正則化」は、パラメータを調整・制限して、モデルの複雑さを制限し、適切な量の情報を学習するようにするものです。そして、「ドロップアウト」は、ニューラルネットワークの学習時に、ランダムに一部の人工ニューロンを無効化する方法です。"
+                },
+                {
+                    "q": "過学習の回避方法であるドロップアウトとは、パラメータを調整・制限して、モデルの複雑さを制限し、適切な量の情報を学習するようにする方法である。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 1,
+                    "explanation": "【誤】\n過学習の回避方法であるドロップアウトとは、ニューラルネットワークの学習時に、ランダムに一部の人工ニューロンを無効化する（休ませる）ことで、過学習を回避する方法です。"
+                },
+                {
+                    "q": "AIの４つのレベルのうち、レベル３は、機械学習を利用したAIで、入力から自らデータパターンを見出し、それに基づいて最適な出力を調整して返すものである。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 0,
+                    "explanation": "【正】\nAIの４つのレベルのうち、レベル３は、機械学習を利用したAIで、入力から自らデータパターンを見出し、それに基づいて最適な出力を調整して返すものです。代表的な利用例は、検索エンジンです。"
+                },
+                {
+                    "q": "シンギュラリティとは、技術的特異点ともいわれ、AIが人間を超越して知能的に自己進化する状態をいう。",
+                    "options": [
+                        "正",
+                        "誤"
+                    ],
+                    "answer": 0,
+                    "explanation": "【正】\nシンギュラリティとは、技術的特異点ともいい、AIが人間を超越し知能的に自己進化する状態をいいます。2045年頃にシンギュラリティが起こり、AIが人間の知性を超越して、人間がさまざまな問題や脅威に直面するという問題が提起されており、これを2045年問題といいます。"
+                }
+            ]
+        }
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+    let userAnswers = {};
+
+    function renderQuiz() {
+        quizContainer.innerHTML = '';
+        quizData.forEach((section, sectionIndex) => {
+            const sectionHeader = document.createElement('h2');
+            sectionHeader.textContent = section.section;
+            quizContainer.appendChild(sectionHeader);
+
+            section.questions.forEach((question, qIndex) => {
+                const globalIndex = quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0) + qIndex;
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'question-block';
+                questionBlock.id = `q-${globalIndex}`;
+                
+                const questionTitle = document.createElement('div');
+                questionTitle.className = 'question-title';
+                questionTitle.textContent = `Q${globalIndex + 1}. ${question.q}`;
+                questionBlock.appendChild(questionTitle);
+                
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                question.options.forEach((option, oIndex) => {
+                    const optionLabel = document.createElement('label');
+                    const radioInput = document.createElement('input');
+                    radioInput.type = 'radio';
+                    radioInput.name = `question-${globalIndex}`;
+                    radioInput.value = oIndex;
+                    optionLabel.appendChild(radioInput);
+                    optionLabel.appendChild(document.createTextNode(option));
+                    optionsDiv.appendChild(optionLabel);
+                });
+                questionBlock.appendChild(optionsDiv);
+
+                const gradeButton = document.createElement('button');
+                gradeButton.className = 'grade-button';
+                gradeButton.textContent = '回答する';
+                gradeButton.onclick = () => showAnswer(globalIndex, question.answer, question.explanation);
+                questionBlock.appendChild(gradeButton);
+
+                const answerSection = document.createElement('div');
+                answerSection.className = 'answer-section';
+                answerSection.id = `answer-${globalIndex}`;
+                questionBlock.appendChild(answerSection);
+                
+                quizContainer.appendChild(questionBlock);
+            });
+        });
+        loadState();
+    }
+
+    function showAnswer(qIndex, correctAnswer, explanation) {
+        const questionBlock = document.getElementById(`q-${qIndex}`);
+        const answerSection = document.getElementById(`answer-${qIndex}`);
+        const radioInputs = document.getElementsByName(`question-${qIndex}`);
+        let userAnswer = -1;
+        radioInputs.forEach((input, index) => {
+            if (input.checked) {
+                userAnswer = index;
+            }
+        });
+
+        userAnswers[qIndex] = userAnswer;
+        saveState();
+
+        answerSection.innerHTML = '';
+
+        if (userAnswer === correctAnswer) {
+            answerSection.innerHTML += `<div class="answer-header answer-correct">✅ 正解です！</div>`;
+        } else {
+            const selectedOptionText = userAnswer !== -1 ? `あなたが選択した答え: ${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[userAnswer]}` : '未回答';
+            answerSection.innerHTML += `<div class="answer-header answer-incorrect">❌ 不正解です。</div>`;
+            answerSection.innerHTML += `<div class="explanation">${selectedOptionText}</div>`;
+        }
+        answerSection.innerHTML += `<div class="explanation"><strong>正解は「${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[correctAnswer]}」です。</strong></div>`;
+        answerSection.innerHTML += `<div class="explanation"><strong>【解説】</strong>${explanation}</div>`;
+
+        answerSection.style.display = 'block';
+
+        questionBlock.querySelector('.grade-button').style.display = 'none';
+        radioInputs.forEach(input => input.disabled = true);
+    }
+
+    function getSectionIndex(qIndex) {
+        let count = 0;
+        for (let i = 0; i < quizData.length; i++) {
+            count += quizData[i].questions.length;
+            if (qIndex < count) {
+                return i;
+            }
+        }
+    }
+
+    function saveState() {
+        localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+    }
+
+    function loadState() {
+        const savedAnswers = localStorage.getItem('userAnswers');
+        if (savedAnswers) {
+            userAnswers = JSON.parse(savedAnswers);
+            Object.keys(userAnswers).forEach(qIndex => {
+                const userAnswer = userAnswers[qIndex];
+                if (userAnswer !== -1) {
+                    const radioInput = document.querySelector(`input[name="question-${qIndex}"][value="${userAnswer}"]`);
+                    if (radioInput) {
+                        radioInput.checked = true;
+                        
+                        const sectionIndex = getSectionIndex(qIndex);
+                        const qInSection = qIndex - quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0);
+                        const correctAnswer = quizData[sectionIndex].questions[qInSection].answer;
+                        const explanation = quizData[sectionIndex].questions[qInSection].explanation;
+                        
+                        showAnswer(qIndex, correctAnswer, explanation);
+                    }
+                }
+            });
+        }
+    }
+    
+    function exportAnswers() {
+        const data = JSON.stringify(userAnswers);
+        const encodedData = btoa(encodeURIComponent(data));
+        navigator.clipboard.writeText(encodedData)
+            .then(() => {
+                alert("回答状況がクリップボードにコピーされました！");
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+                alert("回答状況のコピーに失敗しました。コンソールを確認してください。");
+            });
+    }
+
+    function showImport() {
+        const importArea = document.getElementById('import-area');
+        importArea.style.display = 'block';
+    }
+
+    function importAnswers() {
+        const importInput = document.getElementById('import-input');
+        const statusMessage = document.getElementById('status-message');
+        const encodedData = importInput.value;
+        try {
+            const decodedData = decodeURIComponent(atob(encodedData));
+            userAnswers = JSON.parse(decodedData);
+            saveState();
+            renderQuiz();
+            statusMessage.textContent = '回答状況をインポートしました！';
+            statusMessage.style.color = '#28a745';
+        } catch (e) {
+            console.error('Failed to import: ', e);
+            statusMessage.textContent = '無効なデータです。インポートに失敗しました。';
+            statusMessage.style.color = '#dc3545';
+        }
+    }
+
+    function clearAnswers() {
+        if (confirm('全ての回答状況をクリアしますか？')) {
+            localStorage.removeItem('userAnswers');
+            userAnswers = {}; // userAnswers変数を空にする
+            renderQuiz();
+            alert('全ての回答状況がクリアされました。');
+        }
+    }
+
+    // Initialize the quiz
+    document.addEventListener('DOMContentLoaded', renderQuiz);
+</script>
+
+</body>
+</html>

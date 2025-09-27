@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成AIパスポート4章練習問題</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #1e3a5f;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 40px;
+        }
+        .question-block {
+            background: #fafcff;
+            border: 1px solid #d4e2f4;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            transition: box-shadow 0.3s ease;
+        }
+        .question-block:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .question-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #3b5998;
+        }
+        .options label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .options label:hover {
+            color: #0056b3;
+        }
+        .answer-section {
+            display: none;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #e2e8f0;
+        }
+        .answer-header {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        .answer-correct, .answer-incorrect {
+            font-weight: bold;
+        }
+        .answer-correct {
+            color: #28a745;
+        }
+        .answer-incorrect {
+            color: #dc3545;
+        }
+        .explanation {
+            margin-top: 10px;
+            color: #555;
+        }
+        .grade-button, .export-button, .import-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+        }
+        .grade-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .grade-button:hover {
+            background-color: #0056b3;
+        }
+        .export-button {
+            background-color: #28a745;
+            color: white;
+        }
+        .export-button:hover {
+            background-color: #218838;
+        }
+        .import-button {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .import-button:hover {
+            background-color: #e0a800;
+        }
+        .status-message {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        #import-input {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .clear-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .clear-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>生成AIパスポート4章練習問題</h1>
+    <div id="controls">
+        <button class="export-button" onclick="exportAnswers()">結果をエクスポート</button>
+        <button class="import-button" onclick="showImport()">結果をインポート</button>
+        <button class="clear-button" onclick="clearAnswers()">回答をクリア</button>
+        <div id="import-area" style="display:none;">
+            <input type="text" id="import-input" placeholder="ここにエクスポートしたコードを貼り付けてください">
+            <button class="import-button" onclick="importAnswers()">インポート実行</button>
+            <div id="status-message" class="status-message"></div>
+        </div>
+    </div>
+    <div id="quiz-container"></div>
+</div>
+
+<script>
+    const quizData = [
+        {
+            "section": "第4章 確認問題",
+            "questions": [
+                {
+                    "q": "インターネットリテラシーには、テクノロジーの理解、情報リテラシー、セキュリティとプライバシー、デジタル市民権といったものが含まれる。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nインターネットリテラシーとは、インターネットに関わるテクノロジー・ルール・脅威を理解し、適切に使用できる知識や能力のことです。これには、テクノロジーの理解、情報リテラシー、セキュリティとプライバシー、デジタル市民権が含まれます。"
+                },
+                {
+                    "q": "フィッシング詐欺とは、メール・webサイトを通じ、詐欺師が正規の機関やサービス提供者を装って、ユーザーから個人情報や金融情報などを不正に収集しようとする手口の詐欺である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nフィッシング詐欺とは、メール・webサイトを通じ、詐欺師が正規の機関やサービス提供者を装って、ユーザーから個人情報や金融情報などを不正に収集しようとする手口の詐欺をいいます。"
+                },
+                {
+                    "q": "QRコードは、攻撃者に悪用されるリスクのない安全なものである。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nQRコードはQuick Response code の略で、スキャンすることで関連付けられたURLに自動的に誘導される便利なものです。しかし、その手軽さであるQRコードが、物理的に偽のQRコードに貼り直されるなど、その便利さが攻撃者に悪用されるリスクもあります。"
+                },
+                {
+                    "q": "カフェや施設の名称が付いたフリー Wi-Fi は、正規のネットワークであるため、通信を盗聴されるリスクはなく安全である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nカフェや施設の名称が付いたフリー Wi-Fi であっても、攻撃者が仕掛けたフリー Wi-Fi である可能性もあり、通信を盗聴される危険性があります。単なるWi-Fiの名称だけでなく、正規のWi-Fiであることを確かめてから接続する必要があります。"
+                },
+                {
+                    "q": "インターネットでは、データのダウンロードの時の危険のみならず、データのアップロードの場面でもセキュリティに関わる脅威が潜む。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nインターネットでは、データのアップロード・ダウンロードのどちらの場面でも、脅威が潜んでいます。アップロードの際の危険性としては、個人情報や機密情報といったデータの漏洩が挙げられます。また、ダウンロードの際の危険性としては、マルウェアへの感染が挙げられます。"
+                },
+                {
+                    "q": "マルウェアとは、悪意のあるソフトウェアのことで、コンピュータや利用者に被害をもたらすことを目的としたソフトウェアの総称である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nマルウェア（Malware）とは、malicious software（悪意のあるソフトウェア）の略で、コンピュータや利用者（悪意のあるソフトウェアの略で、コンピュータや利用者に被害をもたらすことを目的としたソフトウェアの総称です。"
+                },
+                {
+                    "q": "マルウェア対策として、アンチウイルスソフトウェアを導入し、最新の状態にしたうえであれば、ファイルをダウンロードして開いてもスキャンが実行されるため安全である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nマルウェア対策として、アンチウイルスソフトウェアを導入し、最新の状態にすることは重要ですが、不審なファイルについては、ダウンロードしない・ファイルを開かないことが大切です。"
+                },
+                {
+                    "q": "ランサムウェアとは、感染したコンピュータから大量のスパムメールを送信するコンピュータウイルスである。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\nランサムウェアとは、コンピュータのデータを無断で暗号化し、使用者に対し、暗号化を解除するための身代金を要求するコンピュータウイルスです。"
+                },
+                {
+                    "q": "フィッシング詐欺対策として、不審なリンクは開かないようにすることが重要である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nフィッシング詐欺対策として、まず、不審なリンクはクリックしないようにすることが重要です。また、リンクをクリックする際は、WebサイトのURLに注意し、それが本物であることを確認する必要があります。"
+                },
+                {
+                    "q": "ソーシャルエンジニアリング攻撃におけるスピアフィッシングとは、特定の個人や組織を標的にしたフィッシング攻撃の一種で、ユーザーになりすますことで情報を盗む手法をいう。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nソーシャルエンジニアリング攻撃におけるスピアフィッシングとは、特定の個人や組織を標的にしたフィッシング攻撃の一種です。本当に特定の個人や組織の情報をリサーチし、ユーザーになりすまして、メール等で悪意のあるリンクや添付ファイルを送付することで情報を窃取します。"
+                },
+                {
+                    "q": "ソーシャルエンジニアリング攻撃におけるプリテキストとは、魅力的に見える情報や商品でユーザーの興味をひき、個人情報を得たりマルウェアをダウンロードさせたりする手法をいう。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n魅力的に見える情報や商品でユーザーの興味をひき、個人情報を得たりマルウェアをダウンロードさせたりする手法は、ベイト攻撃です。プリテキストとは、攻撃者が偽のシナリオを作り出し、ターゲットを騙すための権威や前提を提供して、ユーザーのパスワードやその他の機密情報を聞き出すなどする手法をいいます。"
+                },
+                {
+                    "q": "ソーシャルエンジニアリング攻撃におけるブラックメールとは、秘密情報や他人に知られたくない情報を盗んだ攻撃者が、その情報を公開しない代わりに金銭を要求する手法をいう。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nソーシャルエンジニアリング攻撃におけるブラックメールとは、個人や組織に対し、何らかの秘密情報を公開すると脅して、金銭を要求する手法をいいます。"
+                },
+                {
+                    "q": "プライバシー設定をせずにインターネットやアプリケーションを利用していると、知らぬ間にプライベートな情報が環境・収集される可能性がある。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nプライバシー設定とは、他のユーザーや企業が自分の個人情報にどの程度アクセスできるかを決定することです。プライバシー設定をせずにインターネットやアプリケーションを利用していると、知らぬ間にプライベートな情報が閲覧・収集される可能性があります。"
+                },
+                {
+                    "q": "個人情報保護法の目的として、個人の権利利益を保護することが挙げられているが、個人情報の有用性に配慮することが挙げられてはいない。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n個人情報保護法は、正式名称は個人情報の保護に関する法律といい、個人情報の有用性に配慮しつつ、個人の権利利益を保護することを目的としています。"
+                },
+                {
+                    "q": "個人情報保護法において、「個人情報」とは、個人に関する一定の情報をいい、死者に関する情報も含まれる。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n個人情報とは、生存する個人に関する情報であって、①当該情報に含まれる氏名、生年月日その他の記述等により特定の個人を識別することができるもの、または、②個人識別符号が含まれるものをいいます。死者に関する情報は、個人情報には含まれません。"
+                },
+                {
+                    "q": "取り扱う個人情報によって識別される特定の個人の数に関わらず、個人情報データベース等を事業の用に供している者は、個人情報取扱事業者に該当する。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n個人情報取扱事業者とは、個人情報データベース等を事業の用に供している者をいいます。取り扱う個人情報によって識別される特定の個人の数に関わりません。"
+                },
+                {
+                    "q": "個人のメールアドレスは個人情報に該当するが、企業のメールアドレスは個人情報に該当しない。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n個人のメールアドレスは、他の情報と容易に照合でき、それにより特定の個人を識別することができるものであるため、個人情報に該当します。他方、企業のメールアドレス等の団体そのものに関する情報（団体情報）は、個人情報には該当しません。"
+                },
+                {
+                    "q": "要配慮個人情報とは、本人に対する不当な差別、偏見その他の不利益が生じないように、その取扱いに特に配慮を要する一定の個人情報をいう。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n要配慮個人情報とは、本人に対する不当な差別、偏見その他の不利益が生じないように、その取扱いに特に配慮を要するものとして政令で定める記述等が含まれる個人情報をいいます。"
+                },
+                {
+                    "q": "本人の人種、信条、社会的身分、病歴、犯罪の経歴、犯罪により害を被った事実は、いずれも要配慮個人情報に含まれる。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n要配慮個人情報とは、本人に対する不当な差別や偏見等の不利益が生じないように、その取扱いに特に配慮を要する一定の個人情報をいいます。これには、本人の人種、信条、社会的身分、病歴、犯罪の経歴、犯罪により害を被った事実が含まれます。"
+                },
+                {
+                    "q": "機微情報とは、個人情報保護法で定められているもので、要配慮個人情報よりも狭い概念である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n機微（センシティブ）情報とは、金融分野における個人情報保護に関するガイドラインで定められている概念であり、個人情報保護法で定められている要配慮個人情報よりもより広い概念です。"
+                },
+                {
+                    "q": "匿名加工情報とは、個人情報の区分に応じて、法に定められた措置を講じて、特定の個人を識別できないように個人情報を加工し、当該個人情報を復元できないようにした情報をいう。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n匿名加工情報とは、個人情報を「匿名」となるように「加工」したものです。具体的には、個人情報の区分に応じて、法に定められた措置を講じて、特定の個人を識別できないように個人情報を加工し、当該個人情報を復元できないようにしたものをいいます。"
+                },
+                {
+                    "q": "特許権とは、企業や商品の識別マークについて、設定登録をすることで発生する権利である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n企業や商品の識別マークについて、特許庁に思案し、設定登録をすることで発生する権利は、商標権です。特許権とは、新しい発明、技術、製品、プロセスなどについて、特許庁に出願し、設定登録をすることで発生する権利です。"
+                },
+                {
+                    "q": "商標権とは、新しい発明、技術、製品、プロセスなどに対して、特許庁に出願し、設定登録をすることで発生する権利である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n新しい発明、技術、製品、プロセスなどに対して、特許庁に出願し、設定登録をすることにより発生する権利は、特許権です。商標権とは、企業や商品の識別マークについて、特許庁に出願し、設定登録をすることで発生する権利です。"
+                },
+                {
+                    "q": "著作権とは、著作物を創作した者に与えられる権利であり、著作者に自動的に付与され、設定登録等をしなくても発生する。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n著作権とは、著作物（著者が、思想または感情を創造的に表現したものであって、文芸、学術、美術または音楽の範囲に属するもの）を創作した者（著作者）に与えられる権利です。著作者に自動的に付与され、設定登録等は必要ありません。"
+                },
+                {
+                    "q": "肖像権は、法律に明文で規定された権利ではないが、一般的には日本国憲法第13条の幸福追求権に基づき保護されると解釈されている。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n肖像権とは、自分の肖像を自由に管理し、他人に無断で使用させないための権利です。肖像権は、法律で明文化された権利ではありませんが、一般的に、日本国憲法第13条の幸福追求権に基づいて保護されると解釈されています（最高裁判例）。"
+                },
+                {
+                    "q": "パブリシティ権は、肖像権を構成する要素の一つであり、特定の個人の名前、画像、声、その他の個人を特定する特徴について、他人がその個人の許可なく商業的に利用することを制限する権利である。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\nパブリシティ権は、肖像権を構成する要素の一つであり、特定の個人の名前、画像、声、その他の個人を特定する特徴（標識）について、他の人がその個人の許可なく商業的に利用することを制限する権利です。"
+                },
+                {
+                    "q": "生成AI技術の進歩により、さまざまな作業が効率化され、新たなアイデア・デザインの生成も容易になるため、知的財産権の侵害や肖像権・パブリシティ権の侵害は問題とならなくなる。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n生成AI技術の進歩により、さまざまな作業が効率化され、新たなアイデア・デザインの生成も容易になります。しかし、学習のベースが既存のテキストや画像・動画等であることから、生成AIによって生成されたものについて、知的財産権の侵害や肖像権・パブリシティ権の侵害が問題となる可能性があります。"
+                },
+                {
+                    "q": "不正競争防止法で保護される営業秘密といえるためには、秘密管理性・有用性・非公知性の３つの要件を満たす必要がある。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n不正競争防止法で保護される営業秘密といえるためには、①秘密管理性（秘密として管理されていること）、②有用性（事業活動に有用な技術上または営業上の情報であること）、③非公知性（公然と知られていないこと）の３つの要件を満たす必要があります。"
+                },
+                {
+                    "q": "不正競争防止法で規制される周知な商品等表示主体の混同行為とは、他人の商品・営業表示として著名なものと同一または類似のものを、自己の商品・営業表示として使用する行為をいう。",
+                    "options": [ "正", "誤" ],
+                    "answer": 1,
+                    "explanation": "【誤】\n不正競争防止法では、周知な商品等表示主体の混同行為の規制の対象の一つとされています。具体的には、他人の商品・営業表示として需要者の間で広く認識されているものと同一または類似の表示を使用するなどして、他人の商品・営業と誤解させる行為を指します。他人の商品・営業表示として著名なものと同一または類似のものを、自己の商品・営業表示として使用する行為は、不正競争防止法で規制される著名な商品等表示の冒用行為です。"
+                },
+                {
+                    "q": "AI生成物は、AIが生成したものであるが、場合によって著作物に該当し、AI利用者に著作権が認められる可能性もある。",
+                    "options": [ "正", "誤" ],
+                    "answer": 0,
+                    "explanation": "【正】\n文化庁の見解によると、著作権法上では、人がAIを道具として用いて画像等を生成したときは、場合によって、人による創作物として著作物性が認められ、AI利用者に著作権が認められることがあるとされています。"
+                }
+            ]
+        }
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+    let userAnswers = {};
+
+    function renderQuiz() {
+        quizContainer.innerHTML = '';
+        quizData.forEach((section, sectionIndex) => {
+            const sectionHeader = document.createElement('h2');
+            sectionHeader.textContent = section.section;
+            quizContainer.appendChild(sectionHeader);
+
+            section.questions.forEach((question, qIndex) => {
+                const globalIndex = quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0) + qIndex;
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'question-block';
+                questionBlock.id = `q-${globalIndex}`;
+                
+                const questionTitle = document.createElement('div');
+                questionTitle.className = 'question-title';
+                questionTitle.textContent = `Q${globalIndex + 1}. ${question.q}`;
+                questionBlock.appendChild(questionTitle);
+                
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                question.options.forEach((option, oIndex) => {
+                    const optionLabel = document.createElement('label');
+                    const radioInput = document.createElement('input');
+                    radioInput.type = 'radio';
+                    radioInput.name = `question-${globalIndex}`;
+                    radioInput.value = oIndex;
+                    optionLabel.appendChild(radioInput);
+                    optionLabel.appendChild(document.createTextNode(option));
+                    optionsDiv.appendChild(optionLabel);
+                });
+                questionBlock.appendChild(optionsDiv);
+
+                const gradeButton = document.createElement('button');
+                gradeButton.className = 'grade-button';
+                gradeButton.textContent = '回答する';
+                gradeButton.onclick = () => showAnswer(globalIndex, question.answer, question.explanation);
+                questionBlock.appendChild(gradeButton);
+
+                const answerSection = document.createElement('div');
+                answerSection.className = 'answer-section';
+                answerSection.id = `answer-${globalIndex}`;
+                questionBlock.appendChild(answerSection);
+                
+                quizContainer.appendChild(questionBlock);
+            });
+        });
+        loadState();
+    }
+
+    function showAnswer(qIndex, correctAnswer, explanation) {
+        const questionBlock = document.getElementById(`q-${qIndex}`);
+        const answerSection = document.getElementById(`answer-${qIndex}`);
+        const radioInputs = document.getElementsByName(`question-${qIndex}`);
+        let userAnswer = -1;
+        radioInputs.forEach((input, index) => {
+            if (input.checked) {
+                userAnswer = index;
+            }
+        });
+
+        userAnswers[qIndex] = userAnswer;
+        saveState();
+
+        answerSection.innerHTML = '';
+
+        if (userAnswer === correctAnswer) {
+            answerSection.innerHTML += `<div class="answer-header answer-correct">✅ 正解です！</div>`;
+        } else {
+            const selectedOptionText = userAnswer !== -1 ? `あなたが選択した答え: ${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[userAnswer]}` : '未回答';
+            answerSection.innerHTML += `<div class="answer-header answer-incorrect">❌ 不正解です。</div>`;
+            answerSection.innerHTML += `<div class="explanation">${selectedOptionText}</div>`;
+        }
+        answerSection.innerHTML += `<div class="explanation"><strong>正解は「${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[correctAnswer]}」です。</strong></div>`;
+        answerSection.innerHTML += `<div class="explanation"><strong>【解説】</strong>${explanation}</div>`;
+
+        answerSection.style.display = 'block';
+
+        questionBlock.querySelector('.grade-button').style.display = 'none';
+        radioInputs.forEach(input => input.disabled = true);
+    }
+
+    function getSectionIndex(qIndex) {
+        let count = 0;
+        for (let i = 0; i < quizData.length; i++) {
+            count += quizData[i].questions.length;
+            if (qIndex < count) {
+                return i;
+            }
+        }
+    }
+
+    function saveState() {
+        localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+    }
+
+    function loadState() {
+        const savedAnswers = localStorage.getItem('userAnswers');
+        if (savedAnswers) {
+            userAnswers = JSON.parse(savedAnswers);
+            Object.keys(userAnswers).forEach(qIndex => {
+                const userAnswer = userAnswers[qIndex];
+                if (userAnswer !== -1) {
+                    const radioInput = document.querySelector(`input[name="question-${qIndex}"][value="${userAnswer}"]`);
+                    if (radioInput) {
+                        radioInput.checked = true;
+                        
+                        const sectionIndex = getSectionIndex(qIndex);
+                        const qInSection = qIndex - quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0);
+                        const correctAnswer = quizData[sectionIndex].questions[qInSection].answer;
+                        const explanation = quizData[sectionIndex].questions[qInSection].explanation;
+                        
+                        showAnswer(qIndex, correctAnswer, explanation);
+                    }
+                }
+            });
+        }
+    }
+    
+    function exportAnswers() {
+        const data = JSON.stringify(userAnswers);
+        const encodedData = btoa(encodeURIComponent(data));
+        navigator.clipboard.writeText(encodedData)
+            .then(() => {
+                alert("回答状況がクリップボードにコピーされました！");
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+                alert("回答状況のコピーに失敗しました。コンソールを確認してください。");
+            });
+    }
+
+    function showImport() {
+        const importArea = document.getElementById('import-area');
+        importArea.style.display = 'block';
+    }
+
+    function importAnswers() {
+        const importInput = document.getElementById('import-input');
+        const statusMessage = document.getElementById('status-message');
+        const encodedData = importInput.value;
+        try {
+            const decodedData = decodeURIComponent(atob(encodedData));
+            userAnswers = JSON.parse(decodedData);
+            saveState();
+            renderQuiz();
+            statusMessage.textContent = '回答状況をインポートしました！';
+            statusMessage.style.color = '#28a745';
+        } catch (e) {
+            console.error('Failed to import: ', e);
+            statusMessage.textContent = '無効なデータです。インポートに失敗しました。';
+            statusMessage.style.color = '#dc3545';
+        }
+    }
+
+    function clearAnswers() {
+        if (confirm('全ての回答状況をクリアしますか？')) {
+            localStorage.removeItem('userAnswers');
+            userAnswers = {}; // userAnswers変数を空にする
+            renderQuiz();
+            alert('全ての回答状況がクリアされました。');
+        }
+    }
+
+    // Initialize the quiz
+    document.addEventListener('DOMContentLoaded', renderQuiz);
+</script>
+
+</body>
+</html>
