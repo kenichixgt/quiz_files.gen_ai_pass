@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成AIパスポート5章練習問題</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #1e3a5f;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        h2 {
+            margin-top: 40px;
+        }
+        .question-block {
+            background: #fafcff;
+            border: 1px solid #d4e2f4;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            transition: box-shadow 0.3s ease;
+        }
+        .question-block:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .question-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #3b5998;
+        }
+        .options label {
+            display: block;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .options label:hover {
+            color: #0056b3;
+        }
+        .answer-section {
+            display: none;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px dashed #e2e8f0;
+        }
+        .answer-header {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        .answer-correct, .answer-incorrect {
+            font-weight: bold;
+        }
+        .answer-correct {
+            color: #28a745;
+        }
+        .answer-incorrect {
+            color: #dc3545;
+        }
+        .explanation {
+            margin-top: 10px;
+            color: #555;
+        }
+        .grade-button, .export-button, .import-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+        }
+        .grade-button {
+            background-color: #007bff;
+            color: white;
+        }
+        .grade-button:hover {
+            background-color: #0056b3;
+        }
+        .export-button {
+            background-color: #28a745;
+            color: white;
+        }
+        .export-button:hover {
+            background-color: #218838;
+        }
+        .import-button {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .import-button:hover {
+            background-color: #e0a800;
+        }
+        .status-message {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        #import-input {
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .clear-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .clear-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>生成AIパスポート5章練習問題</h1>
+    <div id="controls">
+        <button class="export-button" onclick="exportAnswers()">結果をエクスポート</button>
+        <button class="import-button" onclick="showImport()">結果をインポート</button>
+        <button class="clear-button" onclick="clearAnswers()">回答をクリア</button>
+        <div id="import-area" style="display:none;">
+            <input type="text" id="import-input" placeholder="ここにエクスポートしたコードを貼り付けてください">
+            <button class="import-button" onclick="importAnswers()">インポート実行</button>
+            <div id="status-message" class="status-message"></div>
+        </div>
+    </div>
+    <div id="quiz-container"></div>
+</div>
+
+<script>
+
+    const quizData = [
+        {
+            "section": "第5章 確認問題",
+            "questions": [
+                {
+                    "q": "経済産業省・総務省から公表されている「AI事業者ガイドライン」によれば、「基本理念」とされているのは、人間の尊厳が尊重される社会、多様な背景を持つ人々が多様な幸せを追求できる社会、持続可能な社会の３つである。",
+                    "options": ["○", "×"],
+                    "answer": 0,
+                    "explanation": "解説の通りです。経済産業省・総務省から公表されている「AI事業者ガイドライン」によれば、「基本理念」とされているのは、人間の尊厳が尊重される社会 (Dignity)、多様な背景を持つ人々が多様な幸せを追求できる社会 (Diversity & Inclusion)、持続可能な社会 (Sustainability) の３つです。"
+                },
+                {
+                    "q": "経済産業省・総務省から公表されている「AI事業者ガイドライン」によれば、AIシステム・サービスを開発・提供・利用する各主体が、取組を行うにあたり留意すべきものとして、10項目の「共通の指針」が定められています。",
+                    "options": ["○", "×"],
+                    "answer": 0,
+                    "explanation": "解説の通りです。「AI事業者ガイドライン」では、①人間中心、②安全性、③公平性、④プライバシー保護、⑤セキュリティ確保、⑥透明性、⑦アカウンタビリティ、⑧教育・リテラシー、⑨公正競争確保、⑩イノベーション、の10項目の「共通の指針」が定められています。"
+                },
+                {
+                    "q": "経済産業省・総務省から公表されている「AI事業者ガイドライン」における「共通の指針」のうち、「人間中心」では、各主体は、AIシステム・サービスの開発・提供・利用において、少なくとも憲法が保障するまたは国際的に認められた人権を侵すことがないようにすべきであり、また、AIが人々の能力を拡張し、多様な人々の多様な幸せの追求が可能となるように行動することが重要であるとされている。",
+                    "options": ["○", "×"],
+                    "answer": 0,
+                    "explanation": "解説の通りです。「人間中心」の指針では、人権の尊重が土台であること、そしてAIが人々の能力を拡張し、幸せの追求を可能にすることの重要性が述べられています。"
+                },
+                {
+                    "q": "「共通の指針」のうち、「安全性」では、各主体は、AIシステム・サービスの開発・提供・利用を通じ、ステークホルダーの財産に危害を及ぼすことがないようにすべきであるとされているが、精神および環境に危害を及ぼすことがないようにすることについては、言及されていない。",
+                    "options": ["○", "×"],
+                    "answer": 1,
+                    "explanation": "「安全性」の指針では、ステークホルダーの生命・身体・財産だけでなく、「加えて、精神および環境にも危害を及ぼすことがないようにすることが重要である」とされています。したがって、問題文の記述は誤りです。"
+                },
+                {
+                    "q": "「共通の指針」のうち、「公平性」では、各主体は、不当で有害な偏見および法規をなくすよう努めることが重要とされ、それでも回避できないバイアスがあることを認識しつつ、この回避できないバイアスが人権および多様な文化を尊重する観点から許容可能か評価した上で、AIシステム・サービスの開発・提供・利用を行うことが重要とされている。",
+                    "options": ["○", "×"],
+                    "answer": 0,
+                    "explanation": "解説の通りです。「公平性」の指針では、不当で有害な偏見や差別の解消に努めること、そして回避できないバイアスについては人権や多様な文化の尊重の観点から許容可能か評価することの重要性が述べられています。"
+                },
+                {
+                    "q": "「共通の指針」のうち、「プライバシー保護」では、各主体は、AIシステム・サービスの開発・提供・利用において、関係法令を遵守するとともに、その重要性の程度にかかわらずプライバシーを尊重し、保護することが重要であるとされている。",
+                    "options": ["○", "×"],
+                    "answer": 1,
+                    "explanation": "「プライバシー保護」の指針では、「その重要性に応じ」、プライバシーを尊重し、保護することが重要であるとされています。「重要性の程度にかかわらず」という問題文の記述は誤りです。"
+                },
+                {
+                    "q": "「共通の指針」のうち、「セキュリティ確保」では、各主体は、AIシステム・サービスの開発・提供・利用において、不正操作によってAIの振る舞いに意図せぬ変更または停止が生じることのないように、セキュリティを確保することが重要であるとされている。",
+                    "options": ["○", "×"],
+                    "answer": 0,
+                    "explanation": "解説の通りです。これは「セキュリティ確保」の指針に関する正確な記述です。"
+                },
+                {
+                    "q": "「共通の指針」のうち、「透明性」では、各主体は、AIシステム・サービスの開発・提供・利用において、AIシステム・サービスを活用する際の社会的文脈を踏まえ、AIシステム・サービスの検査可能性を確保することが重要であるとされているが、ステークホルダーに対する合理的な範囲での情報提供の重要性については言及されていない。",
+                    "options": ["○", "×"],
+                    "answer": 1,
+                    "explanation": "「透明性」の指針では、検査可能性を確保するとともに、「必要かつ技術的に可能な範囲で、ステークホルダーに対し合理的な範囲で情報を提供することが重要である」とされています。したがって、情報提供について言及されていないという問題文の記述は誤りです。"
+                },
+                {
+                    "q": "「共通の指針」のうち、「アカウンタビリティ」では、各主体は、AIシステム・サービスの開発・提供・利用において、ステークホルダーに対して、各主体の役割および開発・提供・利用するAIシステム・サービスのもたらすリスクの程度を踏まえ、合理的な範囲でアカウンタビリティを果たすことが重要であるとされている。",
+                    "options": ["○", "×"],
+                    "answer": 0,
+                    "explanation": "解説の通りです。「アカウンタビリティ」の指針では、トレーサビリティの確保や対応状況について、リスクの程度を踏まえて合理的な範囲で説明責任を果たすことの重要性が述べられています。"
+                },
+                {
+                    "q": "「共通の指針」のうち、「教育・リテラシー」では、各主体は、主体内のAIに関わる者が、AIの正しい理解および社会的に正しい利用ができる知識・リテラシー・倫理感を持つために、必要な教育を行うことが期待されるとされているが、ステークホルダーに対する教育への期待については言及されていない。",
+                    "options": ["○", "×"],
+                    "answer": 1,
+                    "explanation": "「教育・リテラシー」の指針では、主体内の関係者への教育に加え、「ステークホルダーに対しても教育を行うことが期待される」と明記されています。したがって、問題文の記述は誤りです。"
+                },
+                {
+                    "q": "「共通の指針」のうち、「公正競争確保」では、各主体は、AIをめぐる公正な競争環境の維持に努めることが期待されるとされている。",
+                    "options": ["○", "×"],
+                    "answer": 0,
+                    "explanation": "解説の通りです。「公正競争確保」の指針は、AIを活用した新たなビジネス・サービスの創出や持続的な経済成長のために、公正な競争環境を維持することへの期待を述べています。"
+                },
+                {
+                    "q": "「共通の指針」のうち、「イノベーション」では、各主体は、社会全体のイノベーションの促進に貢献するよう努めることが期待されるとされている。",
+                    "options": ["○", "×"],
+                    "answer": 0,
+                    "explanation": "解説の通りです。これは「イノベーション」の指針に関する正確な記述です。"
+                }
+            ]
+        }
+    ];
+
+    const quizContainer = document.getElementById('quiz-container');
+    let userAnswers = {};
+
+    function renderQuiz() {
+        quizContainer.innerHTML = '';
+        quizData.forEach((section, sectionIndex) => {
+            const sectionHeader = document.createElement('h2');
+            sectionHeader.textContent = section.section;
+            quizContainer.appendChild(sectionHeader);
+
+            section.questions.forEach((question, qIndex) => {
+                const globalIndex = quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0) + qIndex;
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'question-block';
+                questionBlock.id = `q-${globalIndex}`;
+                
+                const questionTitle = document.createElement('div');
+                questionTitle.className = 'question-title';
+                questionTitle.textContent = `Q${globalIndex + 1}. ${question.q}`;
+                questionBlock.appendChild(questionTitle);
+                
+                const optionsDiv = document.createElement('div');
+                optionsDiv.className = 'options';
+                question.options.forEach((option, oIndex) => {
+                    const optionLabel = document.createElement('label');
+                    const radioInput = document.createElement('input');
+                    radioInput.type = 'radio';
+                    radioInput.name = `question-${globalIndex}`;
+                    radioInput.value = oIndex;
+                    optionLabel.appendChild(radioInput);
+                    optionLabel.appendChild(document.createTextNode(option));
+                    optionsDiv.appendChild(optionLabel);
+                });
+                questionBlock.appendChild(optionsDiv);
+
+                const gradeButton = document.createElement('button');
+                gradeButton.className = 'grade-button';
+                gradeButton.textContent = '回答する';
+                gradeButton.onclick = () => showAnswer(globalIndex, question.answer, question.explanation);
+                questionBlock.appendChild(gradeButton);
+
+                const answerSection = document.createElement('div');
+                answerSection.className = 'answer-section';
+                answerSection.id = `answer-${globalIndex}`;
+                questionBlock.appendChild(answerSection);
+                
+                quizContainer.appendChild(questionBlock);
+            });
+        });
+        loadState();
+    }
+
+    function showAnswer(qIndex, correctAnswer, explanation) {
+        const questionBlock = document.getElementById(`q-${qIndex}`);
+        const answerSection = document.getElementById(`answer-${qIndex}`);
+        const radioInputs = document.getElementsByName(`question-${qIndex}`);
+        let userAnswer = -1;
+        radioInputs.forEach((input, index) => {
+            if (input.checked) {
+                userAnswer = index;
+            }
+        });
+
+        userAnswers[qIndex] = userAnswer;
+        saveState();
+
+        answerSection.innerHTML = '';
+
+        if (userAnswer === correctAnswer) {
+            answerSection.innerHTML += `<div class="answer-header answer-correct">✅ 正解です！</div>`;
+        } else {
+            const selectedOptionText = userAnswer !== -1 ? `あなたが選択した答え: ${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[userAnswer]}` : '未回答';
+            answerSection.innerHTML += `<div class="answer-header answer-incorrect">❌ 不正解です。</div>`;
+            answerSection.innerHTML += `<div class="explanation">${selectedOptionText}</div>`;
+        }
+        answerSection.innerHTML += `<div class="explanation"><strong>正解は「${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[correctAnswer]}」です。</strong></div>`;
+        answerSection.innerHTML += `<div class="explanation"><strong>【解説】</strong>${explanation}</div>`;
+
+        answerSection.style.display = 'block';
+
+        questionBlock.querySelector('.grade-button').style.display = 'none';
+        radioInputs.forEach(input => input.disabled = true);
+    }
+
+    function getSectionIndex(qIndex) {
+        let count = 0;
+        for (let i = 0; i < quizData.length; i++) {
+            count += quizData[i].questions.length;
+            if (qIndex < count) {
+                return i;
+            }
+        }
+    }
+
+    function saveState() {
+        localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+    }
+
+    function loadState() {
+        const savedAnswers = localStorage.getItem('userAnswers');
+        if (savedAnswers) {
+            userAnswers = JSON.parse(savedAnswers);
+            Object.keys(userAnswers).forEach(qIndex => {
+                const userAnswer = userAnswers[qIndex];
+                if (userAnswer !== -1) {
+                    const radioInput = document.querySelector(`input[name="question-${qIndex}"][value="${userAnswer}"]`);
+                    if (radioInput) {
+                        radioInput.checked = true;
+                        
+                        const sectionIndex = getSectionIndex(qIndex);
+                        const qInSection = qIndex - quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0);
+                        const correctAnswer = quizData[sectionIndex].questions[qInSection].answer;
+                        const explanation = quizData[sectionIndex].questions[qInSection].explanation;
+                        
+                        showAnswer(qIndex, correctAnswer, explanation);
+                    }
+                }
+            });
+        }
+    }
+    
+    function exportAnswers() {
+        const data = JSON.stringify(userAnswers);
+        const encodedData = btoa(encodeURIComponent(data));
+        navigator.clipboard.writeText(encodedData)
+            .then(() => {
+                alert("回答状況がクリップボードにコピーされました！");
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+                alert("回答状況のコピーに失敗しました。コンソールを確認してください。");
+            });
+    }
+
+    function showImport() {
+        const importArea = document.getElementById('import-area');
+        importArea.style.display = 'block';
+    }
+
+    function importAnswers() {
+        const importInput = document.getElementById('import-input');
+        const statusMessage = document.getElementById('status-message');
+        const encodedData = importInput.value;
+        try {
+            const decodedData = decodeURIComponent(atob(encodedData));
+            userAnswers = JSON.parse(decodedData);
+            saveState();
+            renderQuiz();
+            statusMessage.textContent = '回答状況をインポートしました！';
+            statusMessage.style.color = '#28a745';
+        } catch (e) {
+            console.error('Failed to import: ', e);
+            statusMessage.textContent = '無効なデータです。インポートに失敗しました。';
+            statusMessage.style.color = '#dc3545';
+        }
+    }
+
+    function clearAnswers() {
+        if (confirm('全ての回答状況をクリアしますか？')) {
+            localStorage.removeItem('userAnswers');
+            userAnswers = {}; // userAnswers変数を空にする
+            renderQuiz();
+            alert('全ての回答状況がクリアされました。');
+        }
+    }
+
+    // Initialize the quiz
+    document.addEventListener('DOMContentLoaded', renderQuiz);
+</script>
+
+</body>
+</html>
