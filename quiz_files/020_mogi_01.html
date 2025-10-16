@@ -29,6 +29,35 @@
         h2 {
             margin-top: 40px;
         }
+        #score-board {
+            background-color: #eef4ff;
+            border: 1px solid #d4e2f4;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            font-weight: bold;
+            color: #1e3a5f;
+        }
+        #filter-controls {
+            margin: 20px 0;
+        }
+        .filter-button {
+            padding: 8px 15px;
+            font-size: 14px;
+            border: 1px solid #007bff;
+            background-color: #fff;
+            color: #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            margin-right: 5px;
+        }
+        .filter-button:hover, .filter-button.active {
+            background-color: #007bff;
+            color: white;
+        }
         .question-block {
             background: #fafcff;
             border: 1px solid #d4e2f4;
@@ -36,15 +65,31 @@
             padding: 20px;
             margin-bottom: 25px;
             transition: box-shadow 0.3s ease;
+            position: relative;
         }
         .question-block:hover {
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .flag-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px;
+            opacity: 0.5;
+        }
+        .flag-button.flagged {
+            opacity: 1.0;
         }
         .question-title {
             font-weight: bold;
             font-size: 1.1em;
             margin-bottom: 15px;
             color: #3b5998;
+            padding-right: 30px; /* Make space for flag button */
         }
         .options label {
             display: block;
@@ -79,7 +124,7 @@
             margin-top: 10px;
             color: #555;
         }
-        .grade-button, .export-button, .import-button {
+        .grade-button, .export-button, .import-button, .clear-button {
             padding: 10px 20px;
             font-size: 16px;
             border: none;
@@ -88,69 +133,49 @@
             transition: background-color 0.3s;
             margin-right: 10px;
         }
-        .grade-button {
-            background-color: #007bff;
-            color: white;
-        }
-        .grade-button:hover {
-            background-color: #0056b3;
-        }
-        .export-button {
-            background-color: #28a745;
-            color: white;
-        }
-        .export-button:hover {
-            background-color: #218838;
-        }
-        .import-button {
-            background-color: #ffc107;
-            color: #333;
-        }
-        .import-button:hover {
-            background-color: #e0a800;
-        }
-        .status-message {
-            margin-top: 10px;
-            font-weight: bold;
-            color: #333;
-        }
-        #import-input {
-            margin-top: 10px;
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .clear-button {
-            background-color: #dc3545;
-            color: white;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .clear-button:hover {
-            background-color: #c82333;
-        }
+        .grade-button { background-color: #007bff; color: white; }
+        .grade-button:hover { background-color: #0056b3; }
+        .export-button { background-color: #28a745; color: white; }
+        .export-button:hover { background-color: #218838; }
+        .import-button { background-color: #ffc107; color: #333; }
+        .import-button:hover { background-color: #e0a800; }
+        .clear-button { background-color: #dc3545; color: white; }
+        .clear-button:hover { background-color: #c82333; }
+        .status-message { margin-top: 10px; font-weight: bold; color: #333; }
+        #import-input { margin-top: 10px; width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>生成AIパスポート模擬問題</h1>
+    
+    <div id="score-board">
+        <span>正答数: <span id="correct-count">0</span></span>
+        <span>回答数: <span id="answered-count">0</span></span>
+        <span>正解率: <span id="accuracy-rate">0.0</span>%</span>
+    </div>
+
     <div id="controls">
-        <button class="export-button" onclick="exportAnswers()">結果をエクスポート</button>
+        <button class="export-button" onclick="exportState()">結果をエクスポート</button>
         <button class="import-button" onclick="showImport()">結果をインポート</button>
-        <button class="clear-button" onclick="clearAnswers()">回答をクリア</button>
+        <button class="clear-button" onclick="clearState()">回答をクリア</button>
         <div id="import-area" style="display:none;">
             <input type="text" id="import-input" placeholder="ここにエクスポートしたコードを貼り付けてください">
-            <button class="import-button" onclick="importAnswers()">インポート実行</button>
+            <button class="import-button" onclick="importState()">インポート実行</button>
             <div id="status-message" class="status-message"></div>
         </div>
     </div>
+    
+    <div id="filter-controls">
+        <strong>フィルター:</strong>
+        <button class="filter-button active" onclick="applyFilter('all')">全て表示</button>
+        <button class="filter-button" onclick="applyFilter('flagged')">フラグ</button>
+        <button class="filter-button" onclick="applyFilter('unanswered')">未回答</button>
+        <button class="filter-button" onclick="applyFilter('correct')">正答</button>
+        <button class="filter-button" onclick="applyFilter('incorrect')">誤答</button>
+    </div>
+
     <div id="quiz-container"></div>
 </div>
 
@@ -824,7 +849,8 @@
     ];
 
     const quizContainer = document.getElementById('quiz-container');
-    let userAnswers = {};
+    let userState = {}; // { qIndex: { answer: number, flagged: boolean } }
+    let currentFilter = 'all';
 
     function renderQuiz() {
         quizContainer.innerHTML = '';
@@ -842,6 +868,16 @@
                 const questionTitle = document.createElement('div');
                 questionTitle.className = 'question-title';
                 questionTitle.textContent = `Q${globalIndex + 1}. ${question.q}`;
+
+                const flagButton = document.createElement('button');
+                flagButton.className = 'flag-button';
+                flagButton.innerHTML = '🚩';
+                flagButton.onclick = () => toggleFlag(globalIndex);
+                if (userState[globalIndex] && userState[globalIndex].flagged) {
+                    flagButton.classList.add('flagged');
+                }
+                
+                questionBlock.appendChild(flagButton);
                 questionBlock.appendChild(questionTitle);
                 
                 const optionsDiv = document.createElement('div');
@@ -873,6 +909,8 @@
             });
         });
         loadState();
+        updateScore();
+        applyFilter(currentFilter);
     }
 
     function showAnswer(qIndex, correctAnswer, explanation) {
@@ -881,12 +919,11 @@
         const radioInputs = document.getElementsByName(`question-${qIndex}`);
         let userAnswer = -1;
         radioInputs.forEach((input, index) => {
-            if (input.checked) {
-                userAnswer = index;
-            }
+            if (input.checked) userAnswer = index;
         });
 
-        userAnswers[qIndex] = userAnswer;
+        if (!userState[qIndex]) userState[qIndex] = { answer: -1, flagged: false };
+        userState[qIndex].answer = userAnswer;
         saveState();
 
         answerSection.innerHTML = '';
@@ -900,96 +937,155 @@
         }
         answerSection.innerHTML += `<div class="explanation"><strong>正解は「${quizData[getSectionIndex(qIndex)].questions[qIndex - quizData.slice(0, getSectionIndex(qIndex)).reduce((acc, s) => acc + s.questions.length, 0)].options[correctAnswer]}」です。</strong></div>`;
         answerSection.innerHTML += `<div class="explanation"><strong>【解説】</strong>${explanation}</div>`;
-
         answerSection.style.display = 'block';
 
         questionBlock.querySelector('.grade-button').style.display = 'none';
         radioInputs.forEach(input => input.disabled = true);
+        updateScore();
+    }
+
+    function toggleFlag(qIndex) {
+        if (!userState[qIndex]) userState[qIndex] = { answer: -1, flagged: false };
+        userState[qIndex].flagged = !userState[qIndex].flagged;
+        
+        const flagButton = document.querySelector(`#q-${qIndex} .flag-button`);
+        flagButton.classList.toggle('flagged', userState[qIndex].flagged);
+        
+        saveState();
+    }
+    
+    function updateScore() {
+        let correctCount = 0;
+        let answeredCount = 0;
+        const totalQuestions = quizData.reduce((acc, s) => acc + s.questions.length, 0);
+
+        for (let i = 0; i < totalQuestions; i++) {
+            if (userState[i] && userState[i].answer !== -1) {
+                answeredCount++;
+                const sectionIndex = getSectionIndex(i);
+                const qInSectionIndex = i - quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0);
+                const correctAnswer = quizData[sectionIndex].questions[qInSectionIndex].answer;
+                if (userState[i].answer === correctAnswer) {
+                    correctCount++;
+                }
+            }
+        }
+        
+        const accuracy = answeredCount > 0 ? (correctCount / answeredCount) * 100 : 0;
+        
+        document.getElementById('correct-count').textContent = correctCount;
+        document.getElementById('answered-count').textContent = answeredCount;
+        document.getElementById('accuracy-rate').textContent = accuracy.toFixed(1);
+    }
+
+    function applyFilter(filter) {
+        currentFilter = filter;
+        const questionBlocks = document.querySelectorAll('.question-block');
+        questionBlocks.forEach((block, qIndex) => {
+            const state = userState[qIndex] || { answer: -1, flagged: false };
+            const sectionIndex = getSectionIndex(qIndex);
+            const qInSectionIndex = qIndex - quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0);
+            const correctAnswer = quizData[sectionIndex].questions[qInSectionIndex].answer;
+            
+            let show = false;
+            switch (filter) {
+                case 'all':
+                    show = true;
+                    break;
+                case 'flagged':
+                    if (state.flagged) show = true;
+                    break;
+                case 'unanswered':
+                    if (state.answer === -1) show = true;
+                    break;
+                case 'correct':
+                    if (state.answer !== -1 && state.answer === correctAnswer) show = true;
+                    break;
+                case 'incorrect':
+                    if (state.answer !== -1 && state.answer !== correctAnswer) show = true;
+                    break;
+            }
+            block.style.display = show ? 'block' : 'none';
+        });
+        
+        document.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.filter-button[onclick="applyFilter('${filter}')"]`).classList.add('active');
     }
 
     function getSectionIndex(qIndex) {
         let count = 0;
         for (let i = 0; i < quizData.length; i++) {
             count += quizData[i].questions.length;
-            if (qIndex < count) {
-                return i;
-            }
+            if (qIndex < count) return i;
         }
     }
 
     function saveState() {
-        localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+        localStorage.setItem('userQuizState', JSON.stringify(userState));
     }
 
     function loadState() {
-        const savedAnswers = localStorage.getItem('userAnswers');
-        if (savedAnswers) {
-            userAnswers = JSON.parse(savedAnswers);
-            Object.keys(userAnswers).forEach(qIndex => {
-                const userAnswer = userAnswers[qIndex];
-                if (userAnswer !== -1) {
-                    const radioInput = document.querySelector(`input[name="question-${qIndex}"][value="${userAnswer}"]`);
+        const savedState = localStorage.getItem('userQuizState');
+        if (savedState) {
+            userState = JSON.parse(savedState);
+            Object.keys(userState).forEach(qIndexStr => {
+                const qIndex = parseInt(qIndexStr, 10);
+                const state = userState[qIndex];
+                if (state.answer !== -1) {
+                    const radioInput = document.querySelector(`input[name="question-${qIndex}"][value="${state.answer}"]`);
                     if (radioInput) {
                         radioInput.checked = true;
-                        
                         const sectionIndex = getSectionIndex(qIndex);
                         const qInSection = qIndex - quizData.slice(0, sectionIndex).reduce((acc, s) => acc + s.questions.length, 0);
-                        const correctAnswer = quizData[sectionIndex].questions[qInSection].answer;
-                        const explanation = quizData[sectionIndex].questions[qInSection].explanation;
-                        
-                        showAnswer(qIndex, correctAnswer, explanation);
+                        showAnswer(qIndex, quizData[sectionIndex].questions[qInSection].answer, quizData[sectionIndex].questions[qInSection].explanation);
                     }
                 }
             });
         }
     }
     
-    function exportAnswers() {
-        const data = JSON.stringify(userAnswers);
+    function exportState() {
+        if (Object.keys(userState).length === 0) {
+            alert("エクスポートする回答データがありません。");
+            return;
+        }
+        const data = JSON.stringify(userState);
         const encodedData = btoa(encodeURIComponent(data));
         navigator.clipboard.writeText(encodedData)
-            .then(() => {
-                alert("回答状況がクリップボードにコピーされました！");
-            })
-            .catch(err => {
-                console.error('Failed to copy: ', err);
-                alert("回答状況のコピーに失敗しました。コンソールを確認してください。");
-            });
+            .then(() => alert("回答状況がクリップボードにコピーされました！"))
+            .catch(err => alert("回答状況のコピーに失敗しました。"));
     }
 
     function showImport() {
-        const importArea = document.getElementById('import-area');
-        importArea.style.display = 'block';
+        document.getElementById('import-area').style.display = 'block';
     }
 
-    function importAnswers() {
+    function importState() {
         const importInput = document.getElementById('import-input');
         const statusMessage = document.getElementById('status-message');
-        const encodedData = importInput.value;
         try {
-            const decodedData = decodeURIComponent(atob(encodedData));
-            userAnswers = JSON.parse(decodedData);
+            const decodedData = decodeURIComponent(atob(importInput.value));
+            userState = JSON.parse(decodedData);
             saveState();
             renderQuiz();
             statusMessage.textContent = '回答状況をインポートしました！';
             statusMessage.style.color = '#28a745';
         } catch (e) {
-            console.error('Failed to import: ', e);
             statusMessage.textContent = '無効なデータです。インポートに失敗しました。';
             statusMessage.style.color = '#dc3545';
         }
     }
 
-    function clearAnswers() {
+    function clearState() {
         if (confirm('全ての回答状況をクリアしますか？')) {
-            localStorage.removeItem('userAnswers');
-            userAnswers = {}; // userAnswers変数を空にする
+            localStorage.removeItem('userQuizState');
+            userState = {};
+            currentFilter = 'all';
             renderQuiz();
             alert('全ての回答状況がクリアされました。');
         }
     }
 
-    // Initialize the quiz
     document.addEventListener('DOMContentLoaded', renderQuiz);
 </script>
 
